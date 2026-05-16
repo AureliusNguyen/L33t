@@ -154,17 +154,17 @@ export function WasmRttSlider({ active }: { active?: boolean }) {
         <tbody>
           <Row
             label="cpu work"
-            value={cpuUs !== null ? `${cpuUs.toFixed(2)} microsec` : "(loading)"}
+            value={cpuUs !== null ? `${(cpuUs / 1000).toFixed(4)} ms` : "(loading)"}
             note="measured live in WASM"
           />
           <Row
             label="bandwidth"
-            value={`${bandwidthUs.toFixed(2)} microsec`}
+            value={`${(bandwidthUs / 1000).toFixed(4)} ms`}
             note={`derived from ${VALUE_SIZE_BYTES} B value at ${LINK_GBIT} Gbit`}
           />
           <Row
             label="network RTT"
-            value={`${(rttUs / 1000).toFixed(0)} microsec`}
+            value={`${rttMs.toFixed(0)} ms`}
             note="you control this"
           />
         </tbody>

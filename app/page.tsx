@@ -15,12 +15,11 @@ import { IoUringNullResult } from "@/components/artifacts/IoUringNullResult";
 import { WasmRttSlider } from "@/components/artifacts/WasmRttSlider";
 import { InteractiveSetup } from "@/components/artifacts/InteractiveSetup";
 import { InteractiveTradeoffs } from "@/components/InteractiveTradeoffs";
+import { RevealOnScroll } from "@/components/RevealOnScroll";
 
 const PYTHON_LINES: TerminalLine[] = [
   { prompt: "root@l33t:~$ ", text: "./l33t-server.py --port 8080 &" },
   { prompt: "root@l33t:~$ ", text: "./l33t-benchmark.py --threads 3 --ops 100000" },
-  { prompt: "", text: "" },
-  { prompt: "", text: "# baseline asyncio, no event-loop tricks", color: "var(--color-ink-muted)" },
   { prompt: "", text: "" },
   { prompt: "", text: "throughput   13,420 ops/sec", color: "var(--color-cyan)" },
   { prompt: "", text: "avg latency  0.220 ms" },
@@ -31,8 +30,6 @@ const UVLOOP_LINES: TerminalLine[] = [
   { prompt: "root@l33t:~$ ", text: "pip install uvloop" },
   { prompt: "root@l33t:~$ ", text: "./l33t-server.py --loop uvloop --port 8080 &" },
   { prompt: "root@l33t:~$ ", text: "./l33t-benchmark.py --threads 3 --ops 100000" },
-  { prompt: "", text: "" },
-  { prompt: "", text: "# uvloop + struct caching + LOAD_FAST hot path", color: "var(--color-ink-muted)" },
   { prompt: "", text: "" },
   { prompt: "", text: "throughput   31,200 ops/sec", color: "var(--color-cyan)" },
   { prompt: "", text: "avg latency  0.094 ms" },
@@ -243,59 +240,70 @@ export default function Home() {
         </div>
 
         <section className="max-w-[760px] mx-auto px-6 sm:px-12 lg:px-16 mb-28 sm:mb-40">
-          <h2 className="display-2 mb-8">What this isn&apos;t.</h2>
+          <h2 className="display-2 mb-8">We beat Redis. But at what cost?</h2>
           <p className="body mb-6">
-            l33t can <span className="mono">SET</span> and{" "}
-            <span className="mono">GET</span> bytes. That is the whole
-            feature surface. Redis is fifteen years of careful engineering
-            past this point, and the gap is mostly invisible in a benchmark.
+            36,234 ops/sec to Redis 6.0&apos;s 35,670. A 1.6 percent edge that
+            vanishes the moment you ask l33t to do anything Redis was
+            actually built to do. Here is what got cut to claim those
+            numbers.
           </p>
 
           <h3 className="h2 mt-14 mb-4">What you give up to get the speed.</h3>
 
           <InteractiveTradeoffs />
 
-          <h3 className="h2 mt-16 mb-6">What this taught me.</h3>
+          <RevealOnScroll>
+            <h3 className="h2 mt-16 mb-6">What this taught me.</h3>
+          </RevealOnScroll>
 
           <div className="space-y-6">
-            <p className="body">
-              <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
-                The wire protocol matters less than you would think.
-              </em>{" "}
-              RESP costs five to seven times the framing per op that our
-              three-byte format does. At the LAN-RTT ceiling that difference
-              disappears. The win you can measure isn&apos;t always the win
-              that matters.
-            </p>
-            <p className="body">
-              <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
-                CPU is rarely the bottleneck once a real network is in the
-                loop.
-              </em>{" "}
-              Three rewrites moved the server from thirteen thousand ops per
-              second to thirty-six thousand. At five microsec of CPU per op
-              against eighty microsec of LAN RTT, anything you do to the CPU
-              side is shaving margins on a number that&apos;s already small.
-            </p>
-            <p className="body">
-              <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
-                Knowing when to stop optimizing is harder than starting.
-              </em>{" "}
-              io_uring gave nothing because there were no in-flight ops to
-              amortize. The correct response to a fancy tool that
-              doesn&apos;t help is to put it down, not to keep tuning
-              parameters until something moves.
-            </p>
-            <p className="body" style={{ color: "var(--color-ink-dim)" }}>
-              <em className="lede" style={{ fontSize: "1em", color: "inherit" }}>
-                Fifteen years of operational hardening beats one weekend of
-                micro-optimization.
-              </em>{" "}
-              Features you don&apos;t have are only valuable if you
-              don&apos;t need them. The day l33t needs to survive a process
-              restart is the day it stops being a benchmark and starts being
-              a database, and that is a different project.
-            </p>
+            <RevealOnScroll>
+              <p className="body">
+                <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
+                  The wire protocol matters less than you would think.
+                </em>{" "}
+                RESP costs five to seven times the framing per op that our
+                three-byte format does. At the LAN-RTT ceiling that
+                difference disappears. The win you can measure isn&apos;t
+                always the win that matters.
+              </p>
+            </RevealOnScroll>
+            <RevealOnScroll delay={0.05}>
+              <p className="body">
+                <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
+                  CPU is rarely the bottleneck once a real network is in
+                  the loop.
+                </em>{" "}
+                Three rewrites moved the server from thirteen thousand ops
+                per second to thirty-six thousand. At five microsec of CPU
+                per op against eighty microsec of LAN RTT, anything you do
+                to the CPU side is shaving margins on a number that&apos;s
+                already small.
+              </p>
+            </RevealOnScroll>
+            <RevealOnScroll delay={0.1}>
+              <p className="body">
+                <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
+                  Knowing when to stop optimizing is harder than starting.
+                </em>{" "}
+                io_uring gave nothing because there were no in-flight ops
+                to amortize. The correct response to a fancy tool that
+                doesn&apos;t help is to put it down, not to keep tuning
+                parameters until something moves.
+              </p>
+            </RevealOnScroll>
+            <RevealOnScroll delay={0.15}>
+              <p className="body" style={{ color: "var(--color-ink-dim)" }}>
+                <em className="lede" style={{ fontSize: "1em", color: "inherit" }}>
+                  Fifteen years of operational hardening beats one weekend
+                  of micro-optimization.
+                </em>{" "}
+                Features you don&apos;t have are only valuable if you
+                don&apos;t need them. The day l33t needs to survive a
+                process restart is the day it stops being a benchmark and
+                starts being a database, and that is a different project.
+              </p>
+            </RevealOnScroll>
           </div>
         </section>
 
@@ -304,12 +312,12 @@ export default function Home() {
             className="display-2"
             style={{ color: "var(--color-ink)" }}
           >
-            Three bytes of wire.
+            36,234 ops/sec.
             <br />
-            Eighty microseconds of LAN.
+            Redis 6.0: 35,670.
             <br />
             <span style={{ color: "var(--color-ink-dim)" }}>
-              The rest is decoration.
+              A tie the LAN refereed.
             </span>
           </p>
         </section>

@@ -55,14 +55,12 @@ function HeroTerminal() {
         <span style={{ color: "var(--color-ink-muted)" }}>root@l33t:~$ </span>
         <span>./bench --servers 3 --ops 300000</span>
         {"\n\n"}
-        <span style={{ color: "var(--color-ink-muted)" }}># final results</span>
-        {"\n"}
-        <span>throughput   </span>
+        <span style={{ color: "var(--color-ink-dim)" }}>throughput   </span>
         <span style={{ color: "var(--color-cyan)" }}>36,234 ops/sec</span>
         {"\n"}
-        <span>avg latency  0.080 ms</span>
+        <span style={{ color: "var(--color-ink-dim)" }}>avg latency  0.080 ms</span>
         {"\n"}
-        <span>beating redis 6.0 (35,670 ops/sec)</span>
+        <span style={{ color: "var(--color-ink-dim)" }}>beating redis 6.0 (35,670 ops/sec)</span>
         {"\n\n"}
         <span style={{ color: "var(--color-ink-muted)" }}>root@l33t:~$ </span>
         <span className="cursor">_</span>

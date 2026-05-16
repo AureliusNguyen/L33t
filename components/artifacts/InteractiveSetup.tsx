@@ -33,7 +33,7 @@ type Segment = {
 const EXAMPLES = [
   "SET key_1 hello",
   "GET key_1",
-  "GET missing",
+  "GET <missing>",
   "SET name Lebron",
 ];
 

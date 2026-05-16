@@ -221,6 +221,13 @@ export function ReplayTerminal({
           const isLineComplete = typed.length === line.text.length;
           const showCursor =
             isLineActive && (!isLineComplete || (isScrollDriven && isCursorOn));
+          // Commands (lines with a prompt) render in full ink. Output lines
+          // (no prompt) render in ink-dim by default so they read as the
+          // terminal's response rather than a typed command. Explicit color
+          // overrides on the TerminalLine still win.
+          const defaultTextColor = line.prompt
+            ? "var(--color-ink)"
+            : "var(--color-ink-dim)";
           return (
             <div key={i}>
               {line.prompt && (
@@ -228,7 +235,7 @@ export function ReplayTerminal({
                   {line.prompt}
                 </span>
               )}
-              <span style={{ color: line.color ?? "var(--color-ink)" }}>
+              <span style={{ color: line.color ?? defaultTextColor }}>
                 {typed}
               </span>
               {showCursor && <span className="cursor">_</span>}
