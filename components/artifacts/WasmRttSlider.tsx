@@ -150,17 +150,24 @@ export function WasmRttSlider({ active }: { active?: boolean }) {
         </div>
       </div>
 
-      <table className="w-full mono-data mt-6">
+      <div
+        className="small mono mt-6 mb-2"
+        style={{ color: "var(--color-ink-muted)" }}
+      >
+        per-op time = cpu + bandwidth + RTT. only RTT changes.
+      </div>
+
+      <table className="w-full mono-data">
         <tbody>
           <Row
             label="cpu work"
-            value={cpuUs !== null ? `${(cpuUs / 1000).toFixed(4)} ms` : "(loading)"}
-            note="measured live in WASM"
+            value={cpuUs !== null ? `${cpuUs.toFixed(2)} microsec` : "(loading)"}
+            note="measured once in WASM (constant)"
           />
           <Row
             label="bandwidth"
-            value={`${(bandwidthUs / 1000).toFixed(4)} ms`}
-            note={`derived from ${VALUE_SIZE_BYTES} B value at ${LINK_GBIT} Gbit`}
+            value={`${bandwidthUs.toFixed(2)} microsec`}
+            note={`${VALUE_SIZE_BYTES} B value at ${LINK_GBIT} Gbit (constant)`}
           />
           <Row
             label="network RTT"
@@ -170,7 +177,7 @@ export function WasmRttSlider({ active }: { active?: boolean }) {
         </tbody>
       </table>
 
-      <div className="mt-6 small mono">
+      <div className="mt-5 small mono">
         <span style={{ color: "var(--color-ink-muted)" }}>bottleneck: </span>
         <span style={{ color: "var(--color-cyan)" }}>{bottleneck}</span>
       </div>

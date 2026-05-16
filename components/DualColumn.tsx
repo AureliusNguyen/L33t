@@ -123,20 +123,34 @@ export function DualColumn({ sections, artifacts }: Props) {
     <div className="relative max-w-[1280px] mx-auto px-6 sm:px-12 lg:px-16">
       <div className="grid grid-cols-1 lg:grid-cols-[58fr_42fr] gap-12 lg:gap-20">
         <div className="space-y-24 sm:space-y-32 lg:space-y-40">
-          {sections.map((s) => (
-            <div
-              key={s.id}
-              id={s.id}
-              className={
-                // Scroll-driven terminal sections get extra vertical real
-                // estate on desktop so the typing has room to play out as
-                // the reader works through the prose.
-                SCROLL_HEAVY.has(s.id) ? "lg:min-h-[150vh]" : ""
-              }
-            >
-              {s.node}
-            </div>
-          ))}
+          {sections.map((s) => {
+            const heavy = SCROLL_HEAVY.has(s.id);
+            return (
+              <div
+                key={s.id}
+                id={s.id}
+                className={
+                  // Scroll-driven terminal sections get extra vertical
+                  // real estate on desktop so the typing has room to
+                  // play out as the reader works through the prose.
+                  heavy ? "lg:min-h-[150vh]" : ""
+                }
+              >
+                {/* In scroll-heavy sections we sticky-pin the prose so
+                    the reader doesn't lose context while scrolling
+                    through the section's vertical budget. Matches the
+                    right column's sticky stage. Sticky releases when
+                    the section bottom hits the prose bottom. */}
+                <div
+                  className={
+                    heavy ? "lg:sticky lg:top-20 lg:self-start" : ""
+                  }
+                >
+                  {s.node}
+                </div>
+              </div>
+            );
+          })}
         </div>
         <aside className="hidden lg:block">
           <div className="sticky top-20 h-[min(78vh,620px)]">

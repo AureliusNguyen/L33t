@@ -9,7 +9,6 @@ const DATA: Row[] = [
   { size: "8 B", l33t: 36234, redis: 35670 },
   { size: "100 B", l33t: 35966, redis: 35277 },
   { size: "1024 B", l33t: 32046, redis: 31812 },
-  { size: "4096 B", l33t: 24384, redis: 24428 },
 ];
 
 const MAX = 40000;
@@ -47,10 +46,32 @@ export function ValueSweepChart({ active }: { active?: boolean }) {
         }}
       />
       <div
-        className="small mono mb-5"
+        className="small mono mb-3"
         style={{ color: "var(--color-ink-muted)" }}
       >
         throughput by value size (ops/sec, higher is better)
+      </div>
+
+      <div
+        className="small mono mb-5 flex flex-wrap items-center gap-x-5 gap-y-1"
+        style={{ color: "var(--color-ink-muted)" }}
+      >
+        <span className="flex items-center gap-2">
+          <span
+            aria-hidden
+            className="inline-block w-4 h-2"
+            style={{ background: "var(--color-cyan)" }}
+          />
+          L33t KV (epoll)
+        </span>
+        <span className="flex items-center gap-2">
+          <span
+            aria-hidden
+            className="inline-block w-4 h-2"
+            style={{ background: "var(--color-cyan-dim)" }}
+          />
+          Redis 6.0
+        </span>
       </div>
       <div className="space-y-5">
         {DATA.map((row, i) => (
@@ -91,9 +112,8 @@ export function ValueSweepChart({ active }: { active?: boolean }) {
         className="small mono mt-6"
         style={{ color: "var(--color-ink-muted)" }}
       >
-        cyan = L33t KV (epoll). dim = Redis 6.0 native bench.
-        <br />
-        3-node, LAN cross-machine, sync per op.
+        3-node, LAN cross-machine, sync per op. native redis-benchmark
+        client to remove Python overhead from both sides.
       </div>
     </div>
   );

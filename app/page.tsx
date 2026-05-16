@@ -163,13 +163,14 @@ export default function Home() {
           <p className="body">
             Three Redis instances on the same host, persistence off, native
             <span className="mono"> redis-benchmark</span> client to remove
-            the Python overhead from both sides of the comparison. Values at
-            8 B, 100 B, 1024 B, 4096 B.
+            the Python overhead from both sides of the comparison. Values
+            from 8 B to 1 KB.
           </p>
           <p className="body">
-            They track each other almost exactly. At 8 B, L33t KV is faster
-            by 1.6 percent. At 4 KB, Redis is faster by 0.2 percent.
-            Run-to-run variance is larger than the gap.
+            L33t KV wins at every size in the sweep. At 8 B the lead is 1.6
+            percent. At 1 KB it shrinks to 0.7 percent. Run-to-run variance
+            is on the order of half a percent, so the smaller leads are
+            effectively ties.
           </p>
           <p className="body" style={{ color: "var(--color-ink-dim)" }}>
             Per-node on loopback, Redis is roughly twice as fast as L33t KV.
@@ -319,10 +320,9 @@ export default function Home() {
           >
             L33t KV.
             <br />
-            A database that beat Redis 6.0 by 1.6 percent
-            <br />
+            A KV store that beats Redis 6.0
             <span style={{ color: "var(--color-ink-dim)" }}>
-              by sacrificing everything Redis spent fifteen years building.
+            by sacrificing everything Redis spent fifteen years building.
             </span>
           </p>
         </section>
