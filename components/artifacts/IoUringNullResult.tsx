@@ -18,6 +18,22 @@ const LINES: TerminalLine[] = [
   },
 ];
 
-export function IoUringNullResult({ restartKey }: { restartKey?: string | number }) {
-  return <ReplayTerminal lines={LINES} speed={95} restartKey={restartKey} />;
+export function IoUringNullResult({
+  restartKey,
+  progress,
+  active,
+}: {
+  restartKey?: string | number;
+  progress?: number;
+  active?: boolean;
+}) {
+  return (
+    <ReplayTerminal
+      lines={LINES}
+      speed={95}
+      restartKey={restartKey}
+      progress={progress}
+      active={active}
+    />
+  );
 }

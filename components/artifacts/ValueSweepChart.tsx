@@ -14,14 +14,38 @@ const DATA: Row[] = [
 
 const MAX = 40000;
 
-export function ValueSweepChart() {
+export function ValueSweepChart({ active }: { active?: boolean }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-20%" });
   return (
     <div
       ref={ref}
-      className="border border-[var(--color-rule)] bg-[var(--color-midnight-2)] p-6 h-full overflow-auto"
+      className={`relative h-full overflow-auto border bg-[var(--color-midnight-2)] p-6 transition-colors ${
+        active
+          ? "border-[color:var(--color-cyan)]/40"
+          : "border-[var(--color-rule)]"
+      }`}
+      style={{
+        boxShadow: active
+          ? "0 0 0 1px rgba(95,217,245,0.18), 0 0 48px -16px rgba(95,217,245,0.35)"
+          : "none",
+        transition: "box-shadow 240ms ease-out, border-color 240ms ease-out",
+      }}
     >
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 1,
+          background:
+            "linear-gradient(90deg, transparent, var(--color-cyan), transparent)",
+          opacity: active ? 0.8 : 0,
+          transition: "opacity 320ms ease-out",
+        }}
+      />
       <div
         className="small mono mb-5"
         style={{ color: "var(--color-ink-muted)" }}

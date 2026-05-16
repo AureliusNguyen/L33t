@@ -1,6 +1,13 @@
+"use client";
+
 import { Hero } from "@/components/Hero";
 import { ReadingProgress } from "@/components/ReadingProgress";
-import { DualColumn, type SectionId } from "@/components/DualColumn";
+import { BackgroundLines } from "@/components/BackgroundLines";
+import {
+  DualColumn,
+  type SectionId,
+  type ArtifactProps,
+} from "@/components/DualColumn";
 import { ProseSection, CountUp } from "@/components/LeftProse";
 import { ReplayTerminal, type TerminalLine } from "@/components/artifacts/ReplayTerminal";
 import { ValueSweepChart } from "@/components/artifacts/ValueSweepChart";
@@ -19,16 +26,22 @@ const SETUP_LINES: TerminalLine[] = [
 ];
 
 const PYTHON_LINES: TerminalLine[] = [
-  { prompt: "shado@l33t:~$ ", text: "./l33t-benchmark.py" },
-  { prompt: "", text: "# original python asyncio", color: "var(--color-ink-muted)" },
+  { prompt: "shado@l33t:~$ ", text: "./l33t-server.py --port 8080 &" },
+  { prompt: "shado@l33t:~$ ", text: "./l33t-benchmark.py --threads 3 --ops 100000" },
+  { prompt: "", text: "" },
+  { prompt: "", text: "# baseline asyncio, no event-loop tricks", color: "var(--color-ink-muted)" },
   { prompt: "", text: "" },
   { prompt: "", text: "throughput   13,420 ops/sec", color: "var(--color-cyan)" },
   { prompt: "", text: "avg latency  0.220 ms" },
+  { prompt: "", text: "p99 latency  0.480 ms" },
 ];
 
 const UVLOOP_LINES: TerminalLine[] = [
-  { prompt: "shado@l33t:~$ ", text: "./l33t-benchmark.py" },
-  { prompt: "", text: "# uvloop + tightened bytecode", color: "var(--color-ink-muted)" },
+  { prompt: "shado@l33t:~$ ", text: "pip install uvloop" },
+  { prompt: "shado@l33t:~$ ", text: "./l33t-server.py --loop uvloop --port 8080 &" },
+  { prompt: "shado@l33t:~$ ", text: "./l33t-benchmark.py --threads 3 --ops 100000" },
+  { prompt: "", text: "" },
+  { prompt: "", text: "# uvloop + struct caching + LOAD_FAST hot path", color: "var(--color-ink-muted)" },
   { prompt: "", text: "" },
   { prompt: "", text: "throughput   31,200 ops/sec", color: "var(--color-cyan)" },
   { prompt: "", text: "avg latency  0.094 ms" },
@@ -73,10 +86,10 @@ export default function Home() {
           inlineArtifact={<ReplayTerminal lines={PYTHON_LINES} />}
         >
           <p className="body">
-            Original implementation: vanilla asyncio, dict-backed store,
-            one server per port behind a client-side modulo shard. Three
-            shards, three benchmark threads, one hundred thousand ops each.
-            Sync per op, no pipelining.
+            Vanilla asyncio, dict-backed store, one server per port behind
+            a client-side modulo shard. Three shards, three benchmark
+            threads, one hundred thousand ops each. Sync per op, no
+            pipelining. The numbers come back honest.
           </p>
           <p className="body">
             Result: <CountUp value={13420} suffix="ops/sec" />.
@@ -124,7 +137,7 @@ export default function Home() {
           number="03"
           heading="C epoll"
           lede="Hand-written hashtable. Edge-triggered epoll, drain to EAGAIN. No allocator surprises."
-          inlineArtifact={<WasmRttSlider />}
+          inlineArtifact={<WasmRttSlider active />}
         >
           <p className="body">
             About four hundred lines of C. FNV-1a hash, open addressing
@@ -155,7 +168,7 @@ export default function Home() {
           number="04"
           heading="The comparison: Redis 6.0"
           lede="Same lab, same wire, same workload shape. Different protocol, different server."
-          inlineArtifact={<ValueSweepChart />}
+          inlineArtifact={<ValueSweepChart active />}
         >
           <p className="body">
             Three Redis instances on the same host, persistence off, native
@@ -183,7 +196,7 @@ export default function Home() {
           number="05"
           heading="io_uring"
           lede="The fancy thing that gave nothing."
-          inlineArtifact={<IoUringNullResult />}
+          inlineArtifact={<IoUringNullResult active />}
         >
           <p className="body">
             Same hashtable, same protocol. Replace epoll with io_uring. Try
@@ -205,51 +218,62 @@ export default function Home() {
     },
   ];
 
-  const artifacts: Record<SectionId, React.ReactNode> = {
-    "setup": <ReplayTerminal lines={SETUP_LINES} />,
-    "ceiling-1-python": <ReplayTerminal lines={PYTHON_LINES} />,
-    "ceiling-2-uvloop": <ReplayTerminal lines={UVLOOP_LINES} />,
-    "ceiling-3-epoll": <WasmRttSlider />,
-    "redis-comparison": <ValueSweepChart />,
-    "ceiling-4-iouring": <IoUringNullResult />,
+  // Renderer functions: receive scroll progress + active state per section.
+  // Terminals use progress to drive their typing; chart/slider use active to
+  // drive the border glow.
+  const artifacts: Record<SectionId, (p: ArtifactProps) => React.ReactNode> = {
+    "setup": (p) => <ReplayTerminal lines={SETUP_LINES} progress={p.progress} active={p.active} />,
+    "ceiling-1-python": (p) => <ReplayTerminal lines={PYTHON_LINES} progress={p.progress} active={p.active} />,
+    "ceiling-2-uvloop": (p) => <ReplayTerminal lines={UVLOOP_LINES} progress={p.progress} active={p.active} />,
+    "ceiling-3-epoll": (p) => <WasmRttSlider active={p.active} />,
+    "redis-comparison": (p) => <ValueSweepChart active={p.active} />,
+    "ceiling-4-iouring": (p) => <IoUringNullResult progress={p.progress} active={p.active} />,
   };
 
   return (
-    <main className="min-h-screen">
+    <main className="relative min-h-screen">
+      <BackgroundLines />
       <div className="grain" aria-hidden />
       <ReadingProgress />
-      <Hero />
 
-      <div className="rule max-w-[1280px] mx-auto my-32 mx-8 sm:mx-16 xl:mx-auto" />
+      <div className="relative" style={{ zIndex: 2 }}>
+        <Hero />
 
-      <DualColumn sections={sections} artifacts={artifacts} />
+        <div className="max-w-[1280px] mx-auto px-8 sm:px-16">
+          <div className="rule my-32" />
+        </div>
 
-      <div className="rule max-w-[1280px] mx-auto my-32 mx-8 sm:mx-16 xl:mx-auto" />
+        <DualColumn sections={sections} artifacts={artifacts} />
 
-      <section className="max-w-[760px] mx-auto px-8 sm:px-16 mb-40">
-        <h2 className="display-2 mb-8">What this isn&apos;t.</h2>
-        <p className="body mb-5">
-          l33t does not persist. It does not replicate. It does not evict.
-          It does not authenticate. It does one thing.
-        </p>
-        <p className="body" style={{ color: "var(--color-ink-dim)" }}>
-          The gap between &quot;ties Redis on a benchmark&quot; and
-          &quot;replaces Redis&quot; is fifteen years of careful engineering.
-          The comparison here is a comparison on one axis. It is honest about
-          that.
-        </p>
-      </section>
+        <div className="max-w-[1280px] mx-auto px-8 sm:px-16">
+          <div className="rule my-32" />
+        </div>
 
-      <section className="max-w-[820px] mx-auto px-8 sm:px-16 pb-48 text-center">
-        <p
-          className="display-2"
-          style={{ color: "var(--color-ink-dim)" }}
-        >
-          Four ceilings. Three rewrites.
-          <br />
-          The network was always the wall.
-        </p>
-      </section>
+        <section className="max-w-[760px] mx-auto px-8 sm:px-16 mb-40">
+          <h2 className="display-2 mb-8">What this isn&apos;t.</h2>
+          <p className="body mb-5">
+            l33t does not persist. It does not replicate. It does not evict.
+            It does not authenticate. It does one thing.
+          </p>
+          <p className="body" style={{ color: "var(--color-ink-dim)" }}>
+            The gap between &quot;ties Redis on a benchmark&quot; and
+            &quot;replaces Redis&quot; is fifteen years of careful
+            engineering. The comparison here is a comparison on one axis.
+            It is honest about that.
+          </p>
+        </section>
+
+        <section className="max-w-[820px] mx-auto px-8 sm:px-16 pb-48 text-center">
+          <p
+            className="display-2"
+            style={{ color: "var(--color-ink-dim)" }}
+          >
+            Four ceilings. Three rewrites.
+            <br />
+            The network was always the wall.
+          </p>
+        </section>
+      </div>
     </main>
   );
 }

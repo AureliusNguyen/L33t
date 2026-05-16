@@ -14,7 +14,7 @@ export function ReadingProgress() {
       aria-hidden
       style={{
         position: "fixed",
-        left: 24,
+        right: 18,
         top: 0,
         width: 1,
         height: "100vh",
@@ -22,6 +22,7 @@ export function ReadingProgress() {
         transformOrigin: "top",
         scaleY,
         zIndex: 40,
+        boxShadow: "0 0 6px var(--color-cyan)",
       }}
     />
   );

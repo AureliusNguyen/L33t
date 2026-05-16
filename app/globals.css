@@ -137,11 +137,55 @@ body {
   );
 }
 
+/* Atmospheric background lines - oscilloscope sweeps + vertical pulses */
+@keyframes sweep-right {
+  0% { transform: translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: translateX(2400px); opacity: 0; }
+}
+@keyframes pulse-vertical {
+  0%, 100% { transform: translateY(0); opacity: 0; }
+  50% { transform: translateY(800px); opacity: 0.6; }
+}
+.bg-lines .sweep {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.bg-lines .sweep-1 {
+  animation: sweep-right 11s linear infinite;
+}
+.bg-lines .sweep-2 {
+  animation: sweep-right 14s linear infinite;
+  animation-delay: -4s;
+}
+.bg-lines .sweep-3 {
+  animation: sweep-right 9s linear infinite;
+  animation-delay: -2s;
+}
+.bg-lines .pulse-v {
+  transform-box: fill-box;
+}
+.bg-lines .pulse-v-1 {
+  animation: pulse-vertical 6.5s ease-in-out infinite;
+}
+.bg-lines .pulse-v-2 {
+  animation: pulse-vertical 8.5s ease-in-out infinite;
+  animation-delay: -2.5s;
+}
+.bg-lines .pulse-v-3 {
+  animation: pulse-vertical 7.2s ease-in-out infinite;
+  animation-delay: -4.5s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0s !important;
     transition-duration: 0s !important;
+  }
+  .bg-lines {
+    display: none;
   }
 }
