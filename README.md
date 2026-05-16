@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# l33t
 
-## Getting Started
+Showcase site for the l33t key-value store - a custom binary-protocol KV
+server in C that ties Redis 6.0 on a lab LAN.
 
-First, run the development server:
+Project source (server, benchmarks, analysis) lives in a separate repo.
+This repo is just the long-form web page that presents the work.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- Next.js 16 (App Router, Turbopack, static export)
+- Tailwind CSS v4 (CSS-first `@theme`)
+- Motion (formerly Framer Motion) for scroll-sync orchestration
+- Fonts: Fraunces (display), Newsreader (body), IBM Plex Mono (data)
+- Emscripten for the WASM core (FNV-1a hash + protocol parser, inlined
+  into the JS glue via `SINGLE_FILE=1`)
+
+## Layout
+
+```
+app/                  - layout + the single longform page
+components/           - Hero, ReadingProgress, DualColumn, LeftProse
+components/artifacts/ - ReplayTerminal, ValueSweepChart, WasmRttSlider,
+                        IoUringNullResult
+lib/wasm/             - typed wrapper around the emscripten module
+wasm-src/             - C source + Makefile (rebuild with emsdk activated)
+docs/superpowers/     - design spec + implementation plan
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local dev
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+nvm use 20
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+http://localhost:3000
 
-## Learn More
+## Rebuilding the WASM core
 
-To learn more about Next.js, take a look at the following resources:
+Only needed if `wasm-src/l33t-core.c` changes. Vercel does not run
+emscripten - the built `lib/wasm/l33t-core.js` is committed.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+source $HOME/emsdk/emsdk_env.sh
+make -C wasm-src OUT_DIR=../lib/wasm
+git add lib/wasm/l33t-core.js
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Push to `main`. Vercel rebuilds and promotes to production automatically
+via the GitHub integration.
