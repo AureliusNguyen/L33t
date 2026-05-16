@@ -243,16 +243,98 @@ export default function Home() {
 
         <section className="max-w-[760px] mx-auto px-6 sm:px-12 lg:px-16 mb-28 sm:mb-40">
           <h2 className="display-2 mb-8">What this isn&apos;t.</h2>
-          <p className="body mb-5">
-            l33t does not persist. It does not replicate. It does not evict.
-            It does not authenticate. It does one thing.
+          <p className="body mb-6">
+            l33t can <span className="mono">SET</span> and{" "}
+            <span className="mono">GET</span> bytes. That is the whole
+            feature surface. Redis is fifteen years of careful engineering
+            past this point, and the gap is mostly invisible in a benchmark.
           </p>
-          <p className="body" style={{ color: "var(--color-ink-dim)" }}>
-            The gap between &quot;ties Redis on a benchmark&quot; and
-            &quot;replaces Redis&quot; is fifteen years of careful
-            engineering. The comparison here is a comparison on one axis.
-            It is honest about that.
-          </p>
+
+          <h3 className="h2 mt-14 mb-6">What you give up to get the speed.</h3>
+
+          <div className="space-y-5">
+            <Tradeoff title="Persistence">
+              Redis writes AOF logs and RDB snapshots so a crash doesn&apos;t
+              lose data. l33t lives in RAM. Kill the process, lose the store.
+            </Tradeoff>
+            <Tradeoff title="Replication">
+              Redis runs primaries with read replicas and promotes on failure.
+              l33t is a single node. If the box goes down, the data goes with
+              it.
+            </Tradeoff>
+            <Tradeoff title="Eviction">
+              Redis enforces LRU and LFU policies under a memory cap. l33t&apos;s
+              open-addressed table fills until linear probing dead-ends; an
+              insert past capacity silently fails.
+            </Tradeoff>
+            <Tradeoff title="Auth and transport security">
+              Redis ships ACLs and TLS. l33t exposes its port to whoever can
+              reach it on the network. There is no auth handshake, no rate
+              limit, no permission model.
+            </Tradeoff>
+            <Tradeoff title="Observability and logging">
+              Redis answers <span className="mono">INFO</span>,{" "}
+              <span className="mono">MEMORY STATS</span>,{" "}
+              <span className="mono">SLOWLOG</span>, and{" "}
+              <span className="mono">MONITOR</span>. It surfaces latency
+              percentiles, hit ratios, eviction counts, slow-query traces.
+              l33t logs nothing. There is no way to see inside it without
+              attaching <span className="mono">strace</span>.
+            </Tradeoff>
+            <Tradeoff title="Data types beyond bytes">
+              Redis has hashes, lists, sets, sorted sets, streams,
+              hyperloglogs, geo, bitmaps. l33t has key-to-value. Anything
+              richer happens in the application above it.
+            </Tradeoff>
+            <Tradeoff title="Everything else operations needs">
+              No expiration. No pub/sub. No Lua scripting. No multi-key
+              transactions. No cluster mode, no client tracking, no slowlog,
+              no client kill, no replica lag metric.
+            </Tradeoff>
+          </div>
+
+          <h3 className="h2 mt-16 mb-6">What this taught me.</h3>
+
+          <div className="space-y-6">
+            <p className="body">
+              <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
+                The wire protocol matters less than you would think.
+              </em>{" "}
+              RESP costs five to seven times the framing per op that our
+              three-byte format does. At the LAN-RTT ceiling that difference
+              disappears. The win you can measure isn&apos;t always the win
+              that matters.
+            </p>
+            <p className="body">
+              <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
+                CPU is rarely the bottleneck once a real network is in the
+                loop.
+              </em>{" "}
+              Three rewrites moved the server from thirteen thousand ops per
+              second to thirty-six thousand. At five microsec of CPU per op
+              against eighty microsec of LAN RTT, anything you do to the CPU
+              side is shaving margins on a number that&apos;s already small.
+            </p>
+            <p className="body">
+              <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
+                Knowing when to stop optimizing is harder than starting.
+              </em>{" "}
+              io_uring gave nothing because there were no in-flight ops to
+              amortize. The correct response to a fancy tool that
+              doesn&apos;t help is to put it down, not to keep tuning
+              parameters until something moves.
+            </p>
+            <p className="body" style={{ color: "var(--color-ink-dim)" }}>
+              <em className="lede" style={{ fontSize: "1em", color: "inherit" }}>
+                Fifteen years of operational hardening beats one weekend of
+                micro-optimization.
+              </em>{" "}
+              Features you don&apos;t have are only valuable if you
+              don&apos;t need them. The day l33t needs to survive a process
+              restart is the day it stops being a benchmark and starts being
+              a database, and that is a different project.
+            </p>
+          </div>
         </section>
 
         <section className="max-w-[820px] mx-auto px-6 sm:px-12 lg:px-16 pb-32 sm:pb-48 text-center">
@@ -267,5 +349,27 @@ export default function Home() {
         </section>
       </div>
     </main>
+  );
+}
+
+function Tradeoff({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-x-6 gap-y-1 border-t border-[var(--color-rule)] pt-4">
+      <div
+        className="mono-data uppercase tracking-wider"
+        style={{ color: "var(--color-cyan)", letterSpacing: "0.08em" }}
+      >
+        {title}
+      </div>
+      <p className="body" style={{ color: "var(--color-ink-dim)" }}>
+        {children}
+      </p>
+    </div>
   );
 }

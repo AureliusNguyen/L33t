@@ -17,6 +17,13 @@ export type ArtifactProps = {
   active: boolean;
 };
 
+/** Section ids whose right-column artifact types in lockstep with scroll. */
+const SCROLL_HEAVY = new Set<SectionId>([
+  "ceiling-1-python",
+  "ceiling-2-uvloop",
+  "ceiling-4-iouring",
+]);
+
 type Props = {
   sections: { id: SectionId; node: ReactNode }[];
   /**
@@ -66,12 +73,16 @@ export function DualColumn({ sections, artifacts }: Props) {
       if (!el) return;
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
-      // Progress goes 0 -> 1 as the section travels from the trigger line
-      // (top of viewport + 20%) to the trigger line + section height.
       const triggerOffset = vh * 0.2;
       const scrolledPast = triggerOffset - rect.top;
-      const p = Math.max(0, Math.min(1, scrolledPast / rect.height));
-      progressRef.current = { ...progressRef.current, [active]: p };
+      const linear = Math.max(0, Math.min(1, scrolledPast / rect.height));
+      // Apply a power curve so typing lags behind scroll: the right-side
+      // terminal fills slowly while the reader is still in the opening
+      // paragraphs of the left-side prose, then accelerates as they reach
+      // the result line. Exponent 1.5 roughly doubles the perceived scroll
+      // distance to reach the same fill level vs linear.
+      const eased = Math.pow(linear, 1.5);
+      progressRef.current = { ...progressRef.current, [active]: eased };
       setRerender((n) => n + 1);
     }
     function onScroll() {
@@ -93,7 +104,16 @@ export function DualColumn({ sections, artifacts }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-[58fr_42fr] gap-12 lg:gap-20">
         <div className="space-y-32 sm:space-y-40 lg:space-y-56">
           {sections.map((s) => (
-            <div key={s.id} id={s.id}>
+            <div
+              key={s.id}
+              id={s.id}
+              className={
+                // Scroll-driven terminal sections get extra vertical real
+                // estate on desktop so the typing has room to play out as
+                // the reader works through the prose.
+                SCROLL_HEAVY.has(s.id) ? "lg:min-h-[92vh]" : ""
+              }
+            >
               {s.node}
             </div>
           ))}
