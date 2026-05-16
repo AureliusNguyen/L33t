@@ -2,7 +2,7 @@
 
 Date: 2026-05-16
 Status: approved (pending final spec review)
-Author: AureliusNguyen (shado), with Claude
+Author: AureliusNguyen (shado)
 
 ## Purpose
 
