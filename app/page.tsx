@@ -48,9 +48,8 @@ export default function Home() {
         >
           <p className="body">
             A key-value store is a brutally simple thing. Two verbs:
-            <span className="mono"> SET</span> and <span className="mono">GET</span>.
-            The interface is so small that almost all of the cost lives in
-            the wire and the network.
+            SET and GET. The interface is so small that almost all of the
+            cost lives in the wire and the network.
           </p>
           <p className="body">
             Most KV stores reach for Redis&apos;s RESP, a human-readable text
@@ -102,13 +101,13 @@ export default function Home() {
           inlineArtifact={<ReplayTerminal lines={UVLOOP_LINES} />}
         >
           <p className="body">
-            uvloop replaces asyncio&apos;s event loop with libuv. The wire
-            format stays the same; the loop dispatches faster. Then the
-            tightening: cache the <span className="mono">struct.Struct</span>,
-            use <span className="mono">readexactly</span> instead of a
-            hand-rolled read loop, local-bind the hot-path globals so the
-            bytecode emits <span className="mono">LOAD_FAST</span> instead
-            of <span className="mono">LOAD_GLOBAL</span>.
+            uvloop swaps asyncio&apos;s event loop for one built on
+            libuv. The wire format stays the same and the loop just
+            dispatches faster. After that comes a round of tightening:
+            cache the struct.Struct so it is parsed once, use
+            readexactly instead of a hand-rolled read loop, and
+            local-bind the hot-path globals so the bytecode emits
+            LOAD_FAST instead of LOAD_GLOBAL.
           </p>
           <p className="body">
             Result: <CountUp value={31200} suffix="ops/sec" />. A 2.3x lift
@@ -162,10 +161,10 @@ export default function Home() {
           inlineArtifact={<ValueSweepChart active />}
         >
           <p className="body">
-            Three Redis instances on the same host, persistence off, native
-            <span className="mono"> redis-benchmark</span> client to remove
-            the Python overhead from both sides of the comparison. Values
-            from 8 B to 1 KB.
+            Three Redis instances run on the same host with persistence
+            turned off. The benchmark uses the native redis-benchmark
+            client so Python overhead is removed from both sides of the
+            comparison. Value sizes range from 8 B to 1 KB.
           </p>
           <p className="body">
             L33t KV wins at every size in the sweep. At 8 B the lead is 1.6
