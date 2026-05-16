@@ -323,7 +323,7 @@ export default function Home() {
             className="small mono"
             style={{ color: "var(--color-ink-muted)" }}
           >
-            made by{" "}
+            Made by{" "}
             <a
               href="https://github.com/AureliusNguyen"
               target="_blank"
