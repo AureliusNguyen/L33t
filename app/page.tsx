@@ -308,6 +308,7 @@ export default function Home() {
             L33t KV.
             <br />
             A KV store that beats Redis 6.0
+            {" "}
             <span style={{ color: "var(--color-ink-dim)" }}>
              by sacrificing everything Redis spent fifteen years building.
             </span>
