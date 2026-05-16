@@ -299,6 +299,36 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="max-w-[940px] mx-auto px-6 sm:px-12 lg:px-16 mb-20 sm:mb-28">
+          <RevealOnScroll>
+            <h3 className="h2 mb-6">Postscript: a class win.</h3>
+            <p className="body mb-8" style={{ color: "var(--color-ink-dim)" }}>
+              The store was the final project in a graduate Cloud
+              Computing class. Twelve teams ran the benchmark on the
+              same lab. We took first place at 36,200 ops per second:
+              thirty-four percent ahead of second, and roughly four
+              times the median team.
+            </p>
+          </RevealOnScroll>
+          <RevealOnScroll>
+            <figure className="border border-[var(--color-rule)] bg-white p-2 sm:p-3 max-w-[760px] mx-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/leaderboard.png"
+                alt="Class leaderboard with our team in first place at 36,200 ops/sec, 0.08 ms average latency"
+                loading="lazy"
+                className="w-full h-auto block"
+              />
+              <figcaption
+                className="mono small mt-2 px-2 pb-1"
+                style={{ color: "#6a6a6a" }}
+              >
+                graduate Cloud Computing class, final ranking
+              </figcaption>
+            </figure>
+          </RevealOnScroll>
+        </section>
+
         <section className="max-w-[1040px] mx-auto px-6 sm:px-12 lg:px-16 pb-20 sm:pb-28 text-center">
           <p
             className="display-2"
@@ -330,7 +360,7 @@ export default function Home() {
               rel="noreferrer noopener"
               className="border-b border-transparent hover:border-[color:var(--color-cyan)]/60 hover:text-[color:var(--color-cyan)] transition-colors"
             >
-              Aurelius Nguyen
+              Leo
             </a>{" "}
             and{" "}
             <a
@@ -339,7 +369,7 @@ export default function Home() {
               rel="noreferrer noopener"
               className="border-b border-transparent hover:border-[color:var(--color-cyan)]/60 hover:text-[color:var(--color-cyan)] transition-colors"
             >
-              Jeffrey Hu
+              Jeffrey
             </a>
           </p>
         </footer>
