@@ -1,14 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Allow async wasm imports (used by the emscripten-generated l33t-core).
-  webpack: (config) => {
-    config.experiments = { ...(config.experiments ?? {}), asyncWebAssembly: true };
-    config.module.rules.push({
-      test: /\.wasm$/,
-      type: "asset/resource",
-    });
-    return config;
+  turbopack: {
+    // Empty config silences the "webpack vs turbopack" warning and signals
+    // we are intentionally on Turbopack. The emscripten-produced wasm loader
+    // uses fetch + import.meta.url, which Turbopack handles natively.
   },
 };
 

@@ -1,0 +1,72 @@
+"use client";
+
+import { motion } from "motion/react";
+
+const TITLE = "Four ceilings.";
+const DEK = "A KV store that ties Redis 6.0 on a lab LAN.";
+
+export function Hero() {
+  return (
+    <section className="relative min-h-screen flex flex-col justify-center px-8 sm:px-16 max-w-[1280px] mx-auto">
+      <motion.h1
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.95, ease: [0.2, 0.8, 0.2, 1] }}
+        className="display-1 max-w-[14ch]"
+      >
+        {TITLE}
+      </motion.h1>
+
+      <motion.p
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.95, delay: 0.22, ease: [0.2, 0.8, 0.2, 1] }}
+        className="lede mt-8 max-w-[44ch]"
+      >
+        {DEK}
+      </motion.p>
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.0, delay: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
+        className="mt-14 max-w-[640px]"
+      >
+        <HeroTerminal />
+      </motion.div>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.4, delay: 1.15 }}
+        className="small mono mt-20 max-w-[48ch]"
+        style={{ color: "var(--color-ink-muted)" }}
+      >
+        Four ceilings, three rewrites, and the discovery that the network was always the wall.
+      </motion.p>
+    </section>
+  );
+}
+
+function HeroTerminal() {
+  return (
+    <div className="border border-[var(--color-rule)] bg-[var(--color-midnight-2)] p-6 scanlines">
+      <pre className="mono-body leading-relaxed whitespace-pre-wrap">
+        <span style={{ color: "var(--color-ink-muted)" }}>shado@l33t:~$ </span>
+        <span>./bench --servers 3 --ops 300000</span>
+        {"\n\n"}
+        <span style={{ color: "var(--color-ink-muted)" }}># final results</span>
+        {"\n"}
+        <span>throughput   </span>
+        <span style={{ color: "var(--color-cyan)" }}>36,234 ops/sec</span>
+        {"\n"}
+        <span>avg latency  0.080 ms</span>
+        {"\n"}
+        <span>parity with  redis 6.0 (35,670 ops/sec)</span>
+        {"\n\n"}
+        <span style={{ color: "var(--color-ink-muted)" }}>shado@l33t:~$ </span>
+        <span className="cursor">_</span>
+      </pre>
+    </div>
+  );
+}
