@@ -152,10 +152,37 @@ export default function Home() {
       ),
     },
     {
-      id: "redis-comparison",
+      id: "ceiling-4-iouring",
       node: (
         <ProseSection
           number="04"
+          heading="io_uring"
+          lede="The fancy thing that gave nothing."
+          inlineArtifact={<IoUringNullResult active />}
+        >
+          <p className="body">
+            Same hashtable, same protocol. Replace epoll with io_uring. Try
+            SQPOLL. Try larger ring sizes. The number does not move.
+          </p>
+          <p className="body">
+            Why: the workload is synchronous per op, in-flight depth is
+            around three, there is no batching to amortize. io_uring&apos;s
+            whole pitch is amortizing syscall cost across many in-flight
+            ops. We don&apos;t have many in-flight ops.
+          </p>
+          <p className="body" style={{ color: "var(--color-ink-dim)" }}>
+            Knowing when not to use the fancy thing is the lesson. The
+            bottleneck moved off-chip two ceilings ago. The CPU has
+            nothing left to give.
+          </p>
+        </ProseSection>
+      ),
+    },
+    {
+      id: "redis-comparison",
+      node: (
+        <ProseSection
+          number="05"
           heading="The comparison: Redis 6.0"
           lede="Same lab, same wire, same workload shape. Different protocol, different server."
           inlineArtifact={<ValueSweepChart active />}
@@ -176,33 +203,6 @@ export default function Home() {
             Per-node on loopback, Redis is roughly twice as fast as L33t KV.
             That gap is what fifteen years of allocator and string work
             buys. On the LAN, the network absorbs it.
-          </p>
-        </ProseSection>
-      ),
-    },
-    {
-      id: "ceiling-4-iouring",
-      node: (
-        <ProseSection
-          number="05"
-          heading="io_uring"
-          lede="The fancy thing that gave nothing."
-          inlineArtifact={<IoUringNullResult active />}
-        >
-          <p className="body">
-            Same hashtable, same protocol. Replace epoll with io_uring. Try
-            SQPOLL. Try larger ring sizes. The number does not move.
-          </p>
-          <p className="body">
-            Why: the workload is synchronous per op, in-flight depth is
-            around three, there is no batching to amortize. io_uring&apos;s
-            whole pitch is amortizing syscall cost across many in-flight
-            ops. We don&apos;t have many in-flight ops.
-          </p>
-          <p className="body" style={{ color: "var(--color-ink-dim)" }}>
-            Knowing when not to use the fancy thing is the lesson. The
-            bottleneck moved off-chip three ceilings ago. The CPU has
-            nothing left to give.
           </p>
         </ProseSection>
       ),
