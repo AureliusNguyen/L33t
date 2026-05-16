@@ -13,17 +13,7 @@ import { ReplayTerminal, type TerminalLine } from "@/components/artifacts/Replay
 import { ValueSweepChart } from "@/components/artifacts/ValueSweepChart";
 import { IoUringNullResult } from "@/components/artifacts/IoUringNullResult";
 import { WasmRttSlider } from "@/components/artifacts/WasmRttSlider";
-
-const SETUP_LINES: TerminalLine[] = [
-  { prompt: "shado@l33t:~$ ", text: "xxd -c 19 one-set.bin" },
-  { prompt: "", text: "" },
-  { prompt: "", text: "01 00 05 6b 65 79 5f 31 00 07 76 61 6c 75 65 5f 31" },
-  { prompt: "", text: "" },
-  { prompt: "", text: "op klen     key       vlen     value", color: "var(--color-ink-muted)" },
-  { prompt: "", text: "01 00 05  'key_1'   00 07   'value_1'", color: "var(--color-ink-muted)" },
-  { prompt: "", text: "" },
-  { prompt: "", text: "# 3 bytes of framing per op. RESP costs 17-23.", color: "var(--color-ink-dim)" },
-];
+import { InteractiveSetup } from "@/components/artifacts/InteractiveSetup";
 
 const PYTHON_LINES: TerminalLine[] = [
   { prompt: "shado@l33t:~$ ", text: "./l33t-server.py --port 8080 &" },
@@ -55,7 +45,7 @@ export default function Home() {
         <ProseSection
           heading="The setup"
           lede="A 19-byte binary instead of human-readable text."
-          inlineArtifact={<ReplayTerminal lines={SETUP_LINES} />}
+          inlineArtifact={<InteractiveSetup active />}
         >
           <p className="body">
             A key-value store is a brutally simple thing. Two verbs:
@@ -71,7 +61,9 @@ export default function Home() {
             machine. Humans don&apos;t need to read it.
           </p>
           <p className="body" style={{ color: "var(--color-ink-dim)" }}>
-            That one decision sets the ceiling on everything else.
+            Try it. The panel on the right runs your command through the
+            same WASM-compiled parser the server uses. Click Run and watch
+            it break the bytes apart.
           </p>
         </ProseSection>
       ),
@@ -222,7 +214,7 @@ export default function Home() {
   // Terminals use progress to drive their typing; chart/slider use active to
   // drive the border glow.
   const artifacts: Record<SectionId, (p: ArtifactProps) => React.ReactNode> = {
-    "setup": (p) => <ReplayTerminal lines={SETUP_LINES} progress={p.progress} active={p.active} />,
+    "setup": (p) => <InteractiveSetup active={p.active} />,
     "ceiling-1-python": (p) => <ReplayTerminal lines={PYTHON_LINES} progress={p.progress} active={p.active} />,
     "ceiling-2-uvloop": (p) => <ReplayTerminal lines={UVLOOP_LINES} progress={p.progress} active={p.active} />,
     "ceiling-3-epoll": (p) => <WasmRttSlider active={p.active} />,
@@ -239,17 +231,17 @@ export default function Home() {
       <div className="relative" style={{ zIndex: 2 }}>
         <Hero />
 
-        <div className="max-w-[1280px] mx-auto px-8 sm:px-16">
-          <div className="rule my-32" />
+        <div className="max-w-[1280px] mx-auto px-6 sm:px-12 lg:px-16">
+          <div className="rule my-20 sm:my-28 lg:my-32" />
         </div>
 
         <DualColumn sections={sections} artifacts={artifacts} />
 
-        <div className="max-w-[1280px] mx-auto px-8 sm:px-16">
-          <div className="rule my-32" />
+        <div className="max-w-[1280px] mx-auto px-6 sm:px-12 lg:px-16">
+          <div className="rule my-20 sm:my-28 lg:my-32" />
         </div>
 
-        <section className="max-w-[760px] mx-auto px-8 sm:px-16 mb-40">
+        <section className="max-w-[760px] mx-auto px-6 sm:px-12 lg:px-16 mb-28 sm:mb-40">
           <h2 className="display-2 mb-8">What this isn&apos;t.</h2>
           <p className="body mb-5">
             l33t does not persist. It does not replicate. It does not evict.
@@ -263,7 +255,7 @@ export default function Home() {
           </p>
         </section>
 
-        <section className="max-w-[820px] mx-auto px-8 sm:px-16 pb-48 text-center">
+        <section className="max-w-[820px] mx-auto px-6 sm:px-12 lg:px-16 pb-32 sm:pb-48 text-center">
           <p
             className="display-2"
             style={{ color: "var(--color-ink-dim)" }}

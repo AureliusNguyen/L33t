@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   loadCore,
   encodeSet,
-  encodeGet,
   type CoreHandle,
 } from "@/lib/wasm/l33t-core";
 
@@ -214,17 +213,28 @@ function pickBottleneck(cpu: number, bw: number, rtt: number): string {
 }
 
 function measureCpu(core: CoreHandle): number {
-  // Warm + 1000 ops, take median microseconds-per-op.
+  // Browser clock resolution (~1ms perf.now without COOP/COEP) makes
+  // single-op timing useless. Batched timing: run 100k SETs in one WASM
+  // call, divide by 100k. Take min of three runs to ignore JIT warmup
+  // and other-tab interference.
   const set = encodeSet("key_1", "value_1");
-  const get = encodeGet("key_1");
-  for (let i = 0; i < 200; i++) {
-    core.benchOneOp(i % 2 === 0 ? set : get);
+
+  // Warm up the WASM JIT and the hashtable bucket.
+  core.benchBatch(set, 50000);
+
+  const ITERS = 100000;
+  let bestNsPerOp = Number.POSITIVE_INFINITY;
+  for (let run = 0; run < 3; run++) {
+    const totalNs = core.benchBatch(set, ITERS);
+    const nsPerOp = totalNs / ITERS;
+    if (nsPerOp > 0 && nsPerOp < bestNsPerOp) bestNsPerOp = nsPerOp;
   }
-  const samples: number[] = [];
-  for (let i = 0; i < 1000; i++) {
-    const ns = core.benchOneOp(i % 2 === 0 ? set : get);
-    samples.push(ns / 1000);
-  }
-  samples.sort((a, b) => a - b);
-  return samples[Math.floor(samples.length / 2)];
+  // Fallback: if every run came back as 0 (extremely throttled clock),
+  // pretend it's 1us so the UI still makes sense.
+  if (!Number.isFinite(bestNsPerOp) || bestNsPerOp <= 0) bestNsPerOp = 1000;
+
+  // benchBatch ran in WASM but JIT can make WASM slightly faster than the
+  // native C build (and the C build itself runs on more cores via epoll).
+  // We DO show the live WASM number; we mark it as such in the UI.
+  return bestNsPerOp / 1000; // microseconds
 }

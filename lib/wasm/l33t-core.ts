@@ -31,34 +31,72 @@ async function loadModule(): Promise<EmscriptenModule> {
   return modulePromise;
 }
 
+export type ExecResult = {
+  ok: boolean;
+  /** "ok" for SET success, "value" for GET hit, "not_found" for GET miss, "error" otherwise. */
+  response: "ok" | "value" | "not_found" | "error";
+};
+
 export type CoreHandle = {
   init: (buckets: number) => void;
   reset: () => void;
+  /** Single-op timing (returns ns). Coarse on browsers without COOP/COEP. */
   benchOneOp: (bytes: Uint8Array) => number;
+  /** Batched timing (returns total ns for `iters` ops). Divide for per-op. */
+  benchBatch: (bytes: Uint8Array, iters: number) => number;
+  /** Execute one op and return its response kind. */
+  execOneOp: (bytes: Uint8Array) => ExecResult;
 };
 
 export async function loadCore(buckets = 65536): Promise<CoreHandle> {
   const mod = await loadModule();
   const initFn = mod.cwrap<[number], void>("kv_init", null, ["number"]);
   const resetFn = mod.cwrap<[], void>("kv_reset", null, []);
-  const benchFn = mod.cwrap<[number, number], number>(
+  const benchOneFn = mod.cwrap<[number, number], number>(
     "bench_one_op",
+    "number",
+    ["number", "number"]
+  );
+  const benchBatchFn = mod.cwrap<[number, number, number], number>(
+    "bench_batch",
+    "number",
+    ["number", "number", "number"]
+  );
+  const execFn = mod.cwrap<[number, number], number>(
+    "exec_one_op",
     "number",
     ["number", "number"]
   );
 
   initFn(buckets);
 
+  function withBuffer<R>(bytes: Uint8Array, fn: (ptr: number) => R): R {
+    const ptr = mod._malloc(bytes.length);
+    mod.HEAPU8.set(bytes, ptr);
+    try {
+      return fn(ptr);
+    } finally {
+      mod._free(ptr);
+    }
+  }
+
   return {
     init: (b: number) => initFn(b),
     reset: () => resetFn(),
-    benchOneOp: (bytes: Uint8Array): number => {
-      const ptr = mod._malloc(bytes.length);
-      mod.HEAPU8.set(bytes, ptr);
-      const ns = benchFn(ptr, bytes.length);
-      mod._free(ptr);
-      return ns;
-    },
+    benchOneOp: (bytes) => withBuffer(bytes, (ptr) => benchOneFn(ptr, bytes.length)),
+    benchBatch: (bytes, iters) =>
+      withBuffer(bytes, (ptr) => benchBatchFn(ptr, bytes.length, iters)),
+    execOneOp: (bytes) =>
+      withBuffer(bytes, (ptr) => {
+        const code = execFn(ptr, bytes.length);
+        const ok = (code & 0x1) === 0x1;
+        if (!ok) return { ok: false, response: "error" };
+        const respBits = (code >> 1) & 0x3;
+        if (respBits === 0) return { ok: true, response: "ok" };
+        if (respBits === 1) return { ok: true, response: "value" };
+        if (respBits === 2) return { ok: true, response: "not_found" };
+        return { ok: false, response: "error" };
+      }),
   };
 }
 
@@ -86,4 +124,46 @@ export function encodeGet(key: string): Uint8Array {
   buf[2] = k.length & 0xff;
   buf.set(k, 3);
   return buf;
+}
+
+/**
+ * Parse a user-typed shell-like command into {op, key, value}.
+ *   SET <key> <value...>
+ *   GET <key>
+ * Returns null if the command is unrecognized.
+ */
+export type ParsedCommand =
+  | { op: "set"; key: string; value: string }
+  | { op: "get"; key: string }
+  | { op: "error"; message: string };
+
+export function parseCommand(input: string): ParsedCommand {
+  const trimmed = input.trim();
+  if (!trimmed) return { op: "error", message: "empty command" };
+  const parts = trimmed.split(/\s+/);
+  const verb = parts[0].toUpperCase();
+  if (verb === "SET") {
+    if (parts.length < 3) return { op: "error", message: "usage: SET <key> <value>" };
+    const key = parts[1];
+    const value = parts.slice(2).join(" ");
+    if (key.length > 64) return { op: "error", message: "key too long (max 64 bytes)" };
+    if (value.length > 192) return { op: "error", message: "value too long (max 192 bytes in demo build)" };
+    return { op: "set", key, value };
+  }
+  if (verb === "GET") {
+    if (parts.length !== 2) return { op: "error", message: "usage: GET <key>" };
+    const key = parts[1];
+    if (key.length > 64) return { op: "error", message: "key too long (max 64 bytes)" };
+    return { op: "get", key };
+  }
+  return { op: "error", message: `unknown command '${verb}' - try SET or GET` };
+}
+
+/** Render a Uint8Array as a two-character hex array (no spaces, ASCII only). */
+export function toHexBytes(buf: Uint8Array): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < buf.length; i++) {
+    out.push(buf[i].toString(16).padStart(2, "0"));
+  }
+  return out;
 }

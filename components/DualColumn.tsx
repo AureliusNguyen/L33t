@@ -89,9 +89,9 @@ export function DualColumn({ sections, artifacts }: Props) {
   }, [active]);
 
   return (
-    <div className="relative max-w-[1280px] mx-auto px-8 sm:px-16">
-      <div className="grid grid-cols-1 lg:grid-cols-[58fr_42fr] gap-16 lg:gap-24">
-        <div className="space-y-40 lg:space-y-56">
+    <div className="relative max-w-[1280px] mx-auto px-6 sm:px-12 lg:px-16">
+      <div className="grid grid-cols-1 lg:grid-cols-[58fr_42fr] gap-12 lg:gap-20">
+        <div className="space-y-32 sm:space-y-40 lg:space-y-56">
           {sections.map((s) => (
             <div key={s.id} id={s.id}>
               {s.node}
@@ -99,7 +99,7 @@ export function DualColumn({ sections, artifacts }: Props) {
           ))}
         </div>
         <aside className="hidden lg:block">
-          <div className="sticky top-24 h-[520px]">
+          <div className="sticky top-20 h-[min(78vh,620px)]">
             <ArtifactStage
               active={active}
               artifacts={artifacts}

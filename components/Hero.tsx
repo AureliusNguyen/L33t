@@ -7,7 +7,7 @@ const DEK = "A KV store that ties Redis 6.0 on a lab LAN.";
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex flex-col justify-center px-8 sm:px-16 max-w-[1280px] mx-auto">
+    <section className="relative min-h-screen flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-24 sm:py-28 max-w-[1280px] mx-auto">
       <motion.h1
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
@@ -30,7 +30,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.0, delay: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
-        className="mt-14 max-w-[640px]"
+        className="mt-12 sm:mt-14 max-w-[640px]"
       >
         <HeroTerminal />
       </motion.div>
@@ -39,7 +39,7 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.4, delay: 1.15 }}
-        className="small mono mt-20 max-w-[48ch]"
+        className="small mono mt-16 sm:mt-20 max-w-[48ch]"
         style={{ color: "var(--color-ink-muted)" }}
       >
         Four ceilings, three rewrites, and the discovery that the network was always the wall.
@@ -50,8 +50,8 @@ export function Hero() {
 
 function HeroTerminal() {
   return (
-    <div className="border border-[var(--color-rule)] bg-[var(--color-midnight-2)] p-6 scanlines">
-      <pre className="mono-body leading-relaxed whitespace-pre-wrap">
+    <div className="border border-[var(--color-rule)] bg-[var(--color-midnight-2)] p-4 sm:p-6 scanlines overflow-x-auto">
+      <pre className="mono-body leading-relaxed whitespace-pre">
         <span style={{ color: "var(--color-ink-muted)" }}>shado@l33t:~$ </span>
         <span>./bench --servers 3 --ops 300000</span>
         {"\n\n"}

@@ -87,6 +87,65 @@ static int kv_get(const char* k, uint16_t klen) {
     return -1;
 }
 
+/*
+ * Time a tight loop of `iters` parse+execute cycles for the provided op.
+ * Returns total elapsed nanoseconds. JS divides by `iters` for per-op time.
+ *
+ * Browser clock resolution (~1ms via perf.now without COOP/COEP) makes
+ * single-op timing return 0; batching to ~100k iters pulls the total into
+ * the measurable range while still using the real WASM hashtable.
+ */
+EMSCRIPTEN_KEEPALIVE
+double bench_batch(uint8_t* buf, size_t len, int iters) {
+    if (len < 3 || iters <= 0) return 0;
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    for (int n = 0; n < iters; n++) {
+        uint8_t op = buf[0];
+        uint16_t klen = ((uint16_t)buf[1] << 8) | buf[2];
+        if (3 + klen > len) continue;
+        const char* k = (const char*)(buf + 3);
+        if (op == OP_SET) {
+            if (3 + klen + 2 > len) continue;
+            uint16_t vlen = ((uint16_t)buf[3 + klen] << 8) | buf[3 + klen + 1];
+            if (3 + klen + 2 + vlen > len) continue;
+            const char* v = (const char*)(buf + 3 + klen + 2);
+            kv_set(k, klen, v, vlen);
+        } else if (op == OP_GET) {
+            kv_get(k, klen);
+        }
+    }
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    return (double)(t1.tv_sec - t0.tv_sec) * 1e9
+         + (double)(t1.tv_nsec - t0.tv_nsec);
+}
+
+/*
+ * Run one op and return a struct of (ok, response_kind) packed into the
+ * return value. Used by the interactive terminal to surface the result.
+ *   bit 0 (ok): 1 if op completed, 0 on parse error
+ *   bit 1-2 (response): 0=OK, 1=VALUE, 2=NOT_FOUND
+ */
+EMSCRIPTEN_KEEPALIVE
+int exec_one_op(uint8_t* buf, size_t len) {
+    if (len < 3) return 0;
+    uint8_t op = buf[0];
+    uint16_t klen = ((uint16_t)buf[1] << 8) | buf[2];
+    if (3 + klen > len) return 0;
+    const char* k = (const char*)(buf + 3);
+    if (op == OP_SET) {
+        if (3 + klen + 2 > len) return 0;
+        uint16_t vlen = ((uint16_t)buf[3 + klen] << 8) | buf[3 + klen + 1];
+        if (3 + klen + 2 + vlen > len) return 0;
+        const char* v = (const char*)(buf + 3 + klen + 2);
+        return kv_set(k, klen, v, vlen) == 0 ? 0x01 : 0;
+    } else if (op == OP_GET) {
+        int r = kv_get(k, klen);
+        return r == 0 ? (0x01 | (0x01 << 1)) : (0x01 | (0x02 << 1));
+    }
+    return 0;
+}
+
 /* Parse + execute one op from the provided buffer. Returns elapsed nanoseconds. */
 EMSCRIPTEN_KEEPALIVE
 double bench_one_op(uint8_t* buf, size_t len) {

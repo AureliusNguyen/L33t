@@ -31,7 +31,9 @@ export function ProseSection({
       {lede && <p className="lede mt-4 relative">{lede}</p>}
       <div className="mt-8 space-y-6 relative">{children}</div>
       {inlineArtifact && (
-        <div className="mt-10 lg:hidden h-[480px]">{inlineArtifact}</div>
+        <div className="mt-10 lg:hidden h-[clamp(440px,72vh,620px)]">
+          {inlineArtifact}
+        </div>
       )}
     </section>
   );
