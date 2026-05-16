@@ -131,13 +131,13 @@ export default function Home() {
           inlineArtifact={<WasmRttSlider active />}
         >
           <p className="body">
-            About four hundred lines of C. FNV-1a hash, open addressing
-            with linear probing, tombstones for deletes. Per-connection
-            read and write buffers. Edge-triggered epoll, drain everything
-            until <span className="mono">EAGAIN</span>.
-            <span className="mono"> TCP_NODELAY</span> on the listening
-            socket so the kernel doesn&apos;t hold packets waiting for
-            payload.
+            The server is about four hundred lines of C. The hash table
+            uses FNV-1a with open addressing and linear probing, with
+            tombstones to mark deleted slots. Each connection has its
+            own read and write buffers. The epoll loop runs in
+            edge-triggered mode and drains every socket until the kernel
+            returns EAGAIN. The listening socket has TCP_NODELAY set so
+            the kernel does not hold packets waiting for more payload.
           </p>
           <p className="body">
             Result: <CountUp value={36234} suffix="ops/sec" />.
