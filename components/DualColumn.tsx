@@ -84,15 +84,26 @@ export function DualColumn({ sections, artifacts }: Props) {
         // at progress=1 for the remainder so the result lingers while the
         // reader finishes the prose and the next ceiling enters view.
         // Inside the typing window, apply a power curve for soft start.
-        const FINISH_AT = 0.6;
+        const FINISH_AT = 0.4;
         const eased =
           linear < FINISH_AT
             ? Math.pow(linear / FINISH_AT, 1.8)
             : 1;
         next[s.id] = eased;
       }
+      // Only force a re-render if at least one section's progress actually
+      // moved by a meaningful amount. Saves 6 artifact reconciliations per
+      // animation frame when the user is sitting on a section reading.
+      const prev = progressRef.current;
+      let changed = false;
+      for (const s of sections) {
+        if (Math.abs((next[s.id] ?? 0) - (prev[s.id] ?? 0)) > 0.004) {
+          changed = true;
+          break;
+        }
+      }
       progressRef.current = next;
-      setRerender((n) => n + 1);
+      if (changed) setRerender((n) => n + 1);
     }
     function onScroll() {
       cancelAnimationFrame(frame);
@@ -120,7 +131,7 @@ export function DualColumn({ sections, artifacts }: Props) {
                 // Scroll-driven terminal sections get extra vertical real
                 // estate on desktop so the typing has room to play out as
                 // the reader works through the prose.
-                SCROLL_HEAVY.has(s.id) ? "lg:min-h-[110vh]" : ""
+                SCROLL_HEAVY.has(s.id) ? "lg:min-h-[250vh]" : ""
               }
             >
               {s.node}

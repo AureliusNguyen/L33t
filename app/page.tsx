@@ -14,10 +14,11 @@ import { ValueSweepChart } from "@/components/artifacts/ValueSweepChart";
 import { IoUringNullResult } from "@/components/artifacts/IoUringNullResult";
 import { WasmRttSlider } from "@/components/artifacts/WasmRttSlider";
 import { InteractiveSetup } from "@/components/artifacts/InteractiveSetup";
+import { InteractiveTradeoffs } from "@/components/InteractiveTradeoffs";
 
 const PYTHON_LINES: TerminalLine[] = [
-  { prompt: "shado@l33t:~$ ", text: "./l33t-server.py --port 8080 &" },
-  { prompt: "shado@l33t:~$ ", text: "./l33t-benchmark.py --threads 3 --ops 100000" },
+  { prompt: "root@l33t:~$ ", text: "./l33t-server.py --port 8080 &" },
+  { prompt: "root@l33t:~$ ", text: "./l33t-benchmark.py --threads 3 --ops 100000" },
   { prompt: "", text: "" },
   { prompt: "", text: "# baseline asyncio, no event-loop tricks", color: "var(--color-ink-muted)" },
   { prompt: "", text: "" },
@@ -27,9 +28,9 @@ const PYTHON_LINES: TerminalLine[] = [
 ];
 
 const UVLOOP_LINES: TerminalLine[] = [
-  { prompt: "shado@l33t:~$ ", text: "pip install uvloop" },
-  { prompt: "shado@l33t:~$ ", text: "./l33t-server.py --loop uvloop --port 8080 &" },
-  { prompt: "shado@l33t:~$ ", text: "./l33t-benchmark.py --threads 3 --ops 100000" },
+  { prompt: "root@l33t:~$ ", text: "pip install uvloop" },
+  { prompt: "root@l33t:~$ ", text: "./l33t-server.py --loop uvloop --port 8080 &" },
+  { prompt: "root@l33t:~$ ", text: "./l33t-benchmark.py --threads 3 --ops 100000" },
   { prompt: "", text: "" },
   { prompt: "", text: "# uvloop + struct caching + LOAD_FAST hot path", color: "var(--color-ink-muted)" },
   { prompt: "", text: "" },
@@ -250,48 +251,9 @@ export default function Home() {
             past this point, and the gap is mostly invisible in a benchmark.
           </p>
 
-          <h3 className="h2 mt-14 mb-6">What you give up to get the speed.</h3>
+          <h3 className="h2 mt-14 mb-4">What you give up to get the speed.</h3>
 
-          <div className="space-y-5">
-            <Tradeoff title="Persistence">
-              Redis writes AOF logs and RDB snapshots so a crash doesn&apos;t
-              lose data. l33t lives in RAM. Kill the process, lose the store.
-            </Tradeoff>
-            <Tradeoff title="Replication">
-              Redis runs primaries with read replicas and promotes on failure.
-              l33t is a single node. If the box goes down, the data goes with
-              it.
-            </Tradeoff>
-            <Tradeoff title="Eviction">
-              Redis enforces LRU and LFU policies under a memory cap. l33t&apos;s
-              open-addressed table fills until linear probing dead-ends; an
-              insert past capacity silently fails.
-            </Tradeoff>
-            <Tradeoff title="Auth and transport security">
-              Redis ships ACLs and TLS. l33t exposes its port to whoever can
-              reach it on the network. There is no auth handshake, no rate
-              limit, no permission model.
-            </Tradeoff>
-            <Tradeoff title="Observability and logging">
-              Redis answers <span className="mono">INFO</span>,{" "}
-              <span className="mono">MEMORY STATS</span>,{" "}
-              <span className="mono">SLOWLOG</span>, and{" "}
-              <span className="mono">MONITOR</span>. It surfaces latency
-              percentiles, hit ratios, eviction counts, slow-query traces.
-              l33t logs nothing. There is no way to see inside it without
-              attaching <span className="mono">strace</span>.
-            </Tradeoff>
-            <Tradeoff title="Data types beyond bytes">
-              Redis has hashes, lists, sets, sorted sets, streams,
-              hyperloglogs, geo, bitmaps. l33t has key-to-value. Anything
-              richer happens in the application above it.
-            </Tradeoff>
-            <Tradeoff title="Everything else operations needs">
-              No expiration. No pub/sub. No Lua scripting. No multi-key
-              transactions. No cluster mode, no client tracking, no slowlog,
-              no client kill, no replica lag metric.
-            </Tradeoff>
-          </div>
+          <InteractiveTradeoffs />
 
           <h3 className="h2 mt-16 mb-6">What this taught me.</h3>
 
@@ -352,24 +314,3 @@ export default function Home() {
   );
 }
 
-function Tradeoff({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-x-6 gap-y-1 border-t border-[var(--color-rule)] pt-4">
-      <div
-        className="mono-data uppercase tracking-wider"
-        style={{ color: "var(--color-cyan)", letterSpacing: "0.08em" }}
-      >
-        {title}
-      </div>
-      <p className="body" style={{ color: "var(--color-ink-dim)" }}>
-        {children}
-      </p>
-    </div>
-  );
-}

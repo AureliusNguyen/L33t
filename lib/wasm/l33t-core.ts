@@ -48,56 +48,66 @@ export type CoreHandle = {
   execOneOp: (bytes: Uint8Array) => ExecResult;
 };
 
+// Singleton CoreHandle: both InteractiveSetup and WasmRttSlider call loadCore.
+// Without this guard, each call would invoke kv_init() and wipe whatever
+// hashtable state the other has accumulated. Sharing one handle keeps the
+// user's SET/GET history alive across artifact components.
+let corePromise: Promise<CoreHandle> | null = null;
+
 export async function loadCore(buckets = 65536): Promise<CoreHandle> {
-  const mod = await loadModule();
-  const initFn = mod.cwrap<[number], void>("kv_init", null, ["number"]);
-  const resetFn = mod.cwrap<[], void>("kv_reset", null, []);
-  const benchOneFn = mod.cwrap<[number, number], number>(
-    "bench_one_op",
-    "number",
-    ["number", "number"]
-  );
-  const benchBatchFn = mod.cwrap<[number, number, number], number>(
-    "bench_batch",
-    "number",
-    ["number", "number", "number"]
-  );
-  const execFn = mod.cwrap<[number, number], number>(
-    "exec_one_op",
-    "number",
-    ["number", "number"]
-  );
+  if (corePromise) return corePromise;
+  corePromise = (async () => {
+    const mod = await loadModule();
+    const initFn = mod.cwrap<[number], void>("kv_init", null, ["number"]);
+    const resetFn = mod.cwrap<[], void>("kv_reset", null, []);
+    const benchOneFn = mod.cwrap<[number, number], number>(
+      "bench_one_op",
+      "number",
+      ["number", "number"]
+    );
+    const benchBatchFn = mod.cwrap<[number, number, number], number>(
+      "bench_batch",
+      "number",
+      ["number", "number", "number"]
+    );
+    const execFn = mod.cwrap<[number, number], number>(
+      "exec_one_op",
+      "number",
+      ["number", "number"]
+    );
 
-  initFn(buckets);
+    initFn(buckets);
 
-  function withBuffer<R>(bytes: Uint8Array, fn: (ptr: number) => R): R {
-    const ptr = mod._malloc(bytes.length);
-    mod.HEAPU8.set(bytes, ptr);
-    try {
-      return fn(ptr);
-    } finally {
-      mod._free(ptr);
+    function withBuffer<R>(bytes: Uint8Array, fn: (ptr: number) => R): R {
+      const ptr = mod._malloc(bytes.length);
+      mod.HEAPU8.set(bytes, ptr);
+      try {
+        return fn(ptr);
+      } finally {
+        mod._free(ptr);
+      }
     }
-  }
 
-  return {
-    init: (b: number) => initFn(b),
-    reset: () => resetFn(),
-    benchOneOp: (bytes) => withBuffer(bytes, (ptr) => benchOneFn(ptr, bytes.length)),
-    benchBatch: (bytes, iters) =>
-      withBuffer(bytes, (ptr) => benchBatchFn(ptr, bytes.length, iters)),
-    execOneOp: (bytes) =>
-      withBuffer(bytes, (ptr) => {
-        const code = execFn(ptr, bytes.length);
-        const ok = (code & 0x1) === 0x1;
-        if (!ok) return { ok: false, response: "error" };
-        const respBits = (code >> 1) & 0x3;
-        if (respBits === 0) return { ok: true, response: "ok" };
-        if (respBits === 1) return { ok: true, response: "value" };
-        if (respBits === 2) return { ok: true, response: "not_found" };
-        return { ok: false, response: "error" };
-      }),
-  };
+    return {
+      init: (b: number) => initFn(b),
+      reset: () => resetFn(),
+      benchOneOp: (bytes) => withBuffer(bytes, (ptr) => benchOneFn(ptr, bytes.length)),
+      benchBatch: (bytes, iters) =>
+        withBuffer(bytes, (ptr) => benchBatchFn(ptr, bytes.length, iters)),
+      execOneOp: (bytes) =>
+        withBuffer(bytes, (ptr) => {
+          const code = execFn(ptr, bytes.length);
+          const ok = (code & 0x1) === 0x1;
+          if (!ok) return { ok: false, response: "error" };
+          const respBits = (code >> 1) & 0x3;
+          if (respBits === 0) return { ok: true, response: "ok" };
+          if (respBits === 1) return { ok: true, response: "value" };
+          if (respBits === 2) return { ok: true, response: "not_found" };
+          return { ok: false, response: "error" };
+        }),
+    };
+  })();
+  return corePromise;
 }
 
 /** Encode a SET request in the l33t wire format. */
@@ -142,18 +152,20 @@ export function parseCommand(input: string): ParsedCommand {
   if (!trimmed) return { op: "error", message: "empty command" };
   const parts = trimmed.split(/\s+/);
   const verb = parts[0].toUpperCase();
+  const enc = new TextEncoder();
   if (verb === "SET") {
     if (parts.length < 3) return { op: "error", message: "usage: SET <key> <value>" };
     const key = parts[1];
     const value = parts.slice(2).join(" ");
-    if (key.length > 64) return { op: "error", message: "key too long (max 64 bytes)" };
-    if (value.length > 192) return { op: "error", message: "value too long (max 192 bytes in demo build)" };
+    // Use byte length (UTF-8) to match the WASM cap, not JS string length.
+    if (enc.encode(key).length > 64) return { op: "error", message: "key too long (max 64 bytes)" };
+    if (enc.encode(value).length > 192) return { op: "error", message: "value too long (max 192 bytes in demo build)" };
     return { op: "set", key, value };
   }
   if (verb === "GET") {
     if (parts.length !== 2) return { op: "error", message: "usage: GET <key>" };
     const key = parts[1];
-    if (key.length > 64) return { op: "error", message: "key too long (max 64 bytes)" };
+    if (enc.encode(key).length > 64) return { op: "error", message: "key too long (max 64 bytes)" };
     return { op: "get", key };
   }
   return { op: "error", message: `unknown command '${verb}' - try SET or GET` };

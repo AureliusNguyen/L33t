@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export type TerminalLine = {
-  /** Prompt prefix, e.g., "shado@l33t:~$ ". Empty for output lines. */
+  /** Prompt prefix, e.g., "root@l33t:~$ ". Empty for output lines. */
   prompt?: string;
   /** Text to type. */
   text: string;

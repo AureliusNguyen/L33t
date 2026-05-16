@@ -38,6 +38,13 @@ export function WasmRttSlider({ active }: { active?: boolean }) {
     };
   }, []);
 
+  // Separate cleanup to guarantee the pulse timer never fires after unmount.
+  useEffect(() => {
+    return () => {
+      if (pulseTimer.current) clearTimeout(pulseTimer.current);
+    };
+  }, []);
+
   const bandwidthUs = useMemo(() => {
     // bandwidth time in us = bytes * 8 / (Gbit * 1000) microseconds
     const bytesPerOp = 3 + 8 + 2 + VALUE_SIZE_BYTES + 1; // request + ack

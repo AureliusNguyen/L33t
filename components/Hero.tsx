@@ -52,7 +52,7 @@ function HeroTerminal() {
   return (
     <div className="border border-[var(--color-rule)] bg-[var(--color-midnight-2)] p-4 sm:p-6 scanlines overflow-x-auto">
       <pre className="mono-body leading-relaxed whitespace-pre">
-        <span style={{ color: "var(--color-ink-muted)" }}>shado@l33t:~$ </span>
+        <span style={{ color: "var(--color-ink-muted)" }}>root@l33t:~$ </span>
         <span>./bench --servers 3 --ops 300000</span>
         {"\n\n"}
         <span style={{ color: "var(--color-ink-muted)" }}># final results</span>
@@ -64,7 +64,7 @@ function HeroTerminal() {
         {"\n"}
         <span>beating redis 6.0 (35,670 ops/sec)</span>
         {"\n\n"}
-        <span style={{ color: "var(--color-ink-muted)" }}>shado@l33t:~$ </span>
+        <span style={{ color: "var(--color-ink-muted)" }}>root@l33t:~$ </span>
         <span className="cursor">_</span>
       </pre>
     </div>

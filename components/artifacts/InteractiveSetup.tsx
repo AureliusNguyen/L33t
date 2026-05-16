@@ -226,6 +226,7 @@ export function InteractiveSetup({ active }: { active?: boolean }) {
 
       <div
         id="setup-helper"
+        aria-live="polite"
         className="small mono mb-3"
         style={{
           color: validation.ok
