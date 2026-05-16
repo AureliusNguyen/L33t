@@ -26,9 +26,9 @@ const plex = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "l33t - a custom KV store at parity with Redis",
+  title: "L33t KV - a custom KV store that ties Redis 6.0",
   description:
-    "Four ceilings, three rewrites, and the discovery that the network was always the wall. A custom binary protocol KV store that ties Redis 6.0 on a lab LAN.",
+    "Four ceilings, three rewrites, and the discovery that the network was always the wall. L33t KV: a custom binary-protocol key-value store that ties Redis 6.0 on a lab LAN.",
 };
 
 export default function RootLayout({

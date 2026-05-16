@@ -21,7 +21,7 @@ const FEATURES: Feature[] = [
     title: "Sub-millisecond latency",
     description:
       "Reads and writes that finish faster than a frame on a 60Hz display. The kind of latency you want behind a cache.",
-    l33t: "l33t: ~80 microsec avg, LAN ceiling",
+    l33t: "L33t KV: ~80 microsec avg, LAN ceiling",
     redis: "Redis: ~85 microsec avg, same setup",
     supported: true,
   },
@@ -30,7 +30,7 @@ const FEATURES: Feature[] = [
     title: "High throughput on a LAN",
     description:
       "Tens of thousands of ops per second per node, sustained, against a real network.",
-    l33t: "l33t: 36k ops/sec, 3 nodes",
+    l33t: "L33t KV: 36k ops/sec, 3 nodes",
     redis: "Redis: 35k ops/sec, 3 nodes",
     supported: true,
   },
@@ -39,7 +39,7 @@ const FEATURES: Feature[] = [
     title: "Compact wire protocol",
     description:
       "Spend bytes on data, not on framing. Useful when the network is the bottleneck.",
-    l33t: "l33t: 3 bytes of framing",
+    l33t: "L33t KV: 3 bytes of framing",
     redis: "Redis: 17-23 bytes (RESP)",
     supported: true,
   },
@@ -48,7 +48,7 @@ const FEATURES: Feature[] = [
     title: "Auditable source",
     description:
       "Small enough that you can read every line that touches your data in an afternoon.",
-    l33t: "l33t: ~400 lines of C",
+    l33t: "L33t KV: ~400 lines of C",
     redis: "Redis: ~150k lines",
     supported: true,
   },
@@ -59,7 +59,7 @@ const FEATURES: Feature[] = [
     title: "Persistence",
     description:
       "Survive a process crash without losing your data. The store rebuilds from disk on restart.",
-    l33t: "l33t: none, RAM-only",
+    l33t: "L33t KV: none, RAM-only",
     redis: "Redis: AOF logs + RDB snapshots",
     supported: false,
   },
@@ -68,7 +68,7 @@ const FEATURES: Feature[] = [
     title: "Replication",
     description:
       "Run primaries with read replicas and promote a follower automatically when the primary dies.",
-    l33t: "l33t: single node",
+    l33t: "L33t KV: single node",
     redis: "Redis: primary/replica + Sentinel + Cluster",
     supported: false,
   },
@@ -77,7 +77,7 @@ const FEATURES: Feature[] = [
     title: "Eviction under memory pressure",
     description:
       "Enforce a memory cap. When you hit it, drop old or rarely-used keys instead of refusing writes.",
-    l33t: "l33t: silently fails when full",
+    l33t: "L33t KV: silently fails when full",
     redis: "Redis: LRU, LFU, allkeys-lru, volatile-ttl",
     supported: false,
   },
@@ -86,7 +86,7 @@ const FEATURES: Feature[] = [
     title: "Auth and TLS",
     description:
       "Refuse unauthenticated connections. Encrypt the wire so untrusted networks can't read or modify ops.",
-    l33t: "l33t: open port to anyone on LAN",
+    l33t: "L33t KV: open port to anyone on LAN",
     redis: "Redis: ACLs + TLS + per-user permissions",
     supported: false,
   },
@@ -95,7 +95,7 @@ const FEATURES: Feature[] = [
     title: "Observability",
     description:
       "See latency percentiles, hit ratios, slow queries, eviction counts. Trace a slow request after the fact.",
-    l33t: "l33t: no logs, no metrics",
+    l33t: "L33t KV: no logs, no metrics",
     redis: "Redis: INFO, SLOWLOG, MONITOR, LATENCY",
     supported: false,
   },
@@ -104,7 +104,7 @@ const FEATURES: Feature[] = [
     title: "Data types beyond bytes",
     description:
       "Hashes, lists, sets, sorted sets, streams, hyperloglogs, geo, bitmaps. Operations richer than get-and-set.",
-    l33t: "l33t: bytes-to-bytes only",
+    l33t: "L33t KV: bytes-to-bytes only",
     redis: "Redis: 9+ first-class data structures",
     supported: false,
   },
@@ -113,7 +113,7 @@ const FEATURES: Feature[] = [
     title: "Everything else operations needs",
     description:
       "Expiration / TTL, pub/sub, Lua scripting, multi-key transactions, cluster mode, client tracking.",
-    l33t: "l33t: none of it",
+    l33t: "L33t KV: none of it",
     redis: "Redis: 15 years of operational surface",
     supported: false,
   },
@@ -160,22 +160,22 @@ export function InteractiveTradeoffs() {
     }
     if (missingNeeded === 0) {
       return {
-        label: "l33t works for you",
+        label: "L33t works for you",
         color: "var(--color-cyan)",
-        sub: `${selectedSupported} of ${totalSupported} l33t features needed, 0 sacrificed features needed. you can ship this.`,
+        sub: `${selectedSupported} of ${totalSupported} L33t features needed, 0 sacrificed features needed. you can ship this.`,
       };
     }
     if (missingNeeded === 1) {
       return {
         label: "you need a real KV store",
         color: "var(--color-ink)",
-        sub: `1 sacrificed feature is enough to disqualify l33t. there is no 'just persistence' mode.`,
+        sub: `1 sacrificed feature is enough to disqualify L33t. there is no 'just persistence' mode.`,
       };
     }
     return {
       label: "you need Redis",
       color: "var(--color-ink)",
-      sub: `${missingNeeded} sacrificed features needed. the gap between l33t and Redis is the gap between a benchmark and a production service.`,
+      sub: `${missingNeeded} sacrificed features needed. the gap between L33t and Redis is the gap between a benchmark and a production service.`,
     };
   }, [missingNeeded, selectedSupported, totalSupported]);
 
@@ -198,7 +198,7 @@ export function InteractiveTradeoffs() {
             className="inline-block w-2 h-2 mr-2 align-middle"
             style={{ background: "var(--color-cyan)" }}
           />
-          l33t has it
+          L33t has it
         </span>
         <span>
           <span
@@ -206,7 +206,7 @@ export function InteractiveTradeoffs() {
             className="inline-block w-2 h-2 mr-2 align-middle border"
             style={{ borderColor: "var(--color-ink-muted)" }}
           />
-          l33t lacks it
+          L33t lacks it
         </span>
       </div>
 

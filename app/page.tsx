@@ -54,7 +54,7 @@ export default function Home() {
           <p className="body">
             Most KV stores reach for Redis&apos;s RESP, a human-readable text
             protocol that costs seventeen to twenty-three bytes of framing
-            per op. l33t spends three. One byte for the opcode, two bytes
+            per op. L33t spends three. One byte for the opcode, two bytes
             for a big-endian length, then the payload. The receiver is a
             machine. Humans don&apos;t need to read it.
           </p>
@@ -167,12 +167,12 @@ export default function Home() {
             8 B, 100 B, 1024 B, 4096 B.
           </p>
           <p className="body">
-            They track each other almost exactly. At 8 B, l33t is faster by
-            1.6 percent. At 4 KB, Redis is faster by 0.2 percent. Run-to-run
-            variance is larger than the gap.
+            They track each other almost exactly. At 8 B, L33t KV is faster
+            by 1.6 percent. At 4 KB, Redis is faster by 0.2 percent.
+            Run-to-run variance is larger than the gap.
           </p>
           <p className="body" style={{ color: "var(--color-ink-dim)" }}>
-            Per-node on loopback, Redis is roughly twice as fast as l33t.
+            Per-node on loopback, Redis is roughly twice as fast as L33t KV.
             That gap is what fifteen years of allocator and string work
             buys. On the LAN, the network absorbs it.
           </p>
@@ -239,12 +239,17 @@ export default function Home() {
           <div className="rule my-20 sm:my-28 lg:my-32" />
         </div>
 
-        <section className="max-w-[760px] mx-auto px-6 sm:px-12 lg:px-16 mb-28 sm:mb-40">
-          <h2 className="display-2 mb-8">We beat Redis. But at what cost?</h2>
-          <p className="body mb-6">
-            36,234 ops/sec to Redis 6.0&apos;s 35,670. A 1.6 percent edge that
-            vanishes the moment you ask l33t to do anything Redis was
-            actually built to do. Here is what got cut to claim those
+        <section className="max-w-[940px] mx-auto px-6 sm:px-12 lg:px-16 mb-28 sm:mb-40">
+          <h2
+            className="display-2 mb-8"
+            style={{ textWrap: "balance" }}
+          >
+            We beat Redis... But at what cost?
+          </h2>
+          <p className="body mb-6 max-w-[760px]">
+            36,234 ops/sec to Redis 6.0&apos;s 35,670. A 1.6 percent edge
+            that vanishes the moment you ask L33t KV to do anything Redis
+            was actually built to do. Here is what got cut to claim those
             numbers.
           </p>
 
@@ -299,7 +304,7 @@ export default function Home() {
                   of micro-optimization.
                 </em>{" "}
                 Features you don&apos;t have are only valuable if you
-                don&apos;t need them. The day l33t needs to survive a
+                don&apos;t need them. The day L33t KV needs to survive a
                 process restart is the day it stops being a benchmark and
                 starts being a database, and that is a different project.
               </p>
@@ -307,17 +312,17 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="max-w-[940px] mx-auto px-6 sm:px-12 lg:px-16 pb-32 sm:pb-48 text-center">
+        <section className="max-w-[1040px] mx-auto px-6 sm:px-12 lg:px-16 pb-32 sm:pb-48 text-center">
           <p
             className="display-2"
-            style={{ color: "var(--color-ink)" }}
+            style={{ color: "var(--color-ink)", textWrap: "balance" }}
           >
-            36,234 ops/sec.
+            L33t KV.
             <br />
-            Redis 6.0: 35,670.
+            A database that beat Redis 6.0 by 1.6 percent
             <br />
             <span style={{ color: "var(--color-ink-dim)" }}>
-              A tie the LAN refereed.
+              by sacrificing everything Redis spent fifteen years building.
             </span>
           </p>
         </section>

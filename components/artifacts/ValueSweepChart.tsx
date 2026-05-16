@@ -61,7 +61,7 @@ export function ValueSweepChart({ active }: { active?: boolean }) {
                 className="mono-data"
                 style={{ color: "var(--color-ink-muted)" }}
               >
-                l33t {row.l33t.toLocaleString()} / redis {row.redis.toLocaleString()}
+                L33t KV {row.l33t.toLocaleString()} / Redis {row.redis.toLocaleString()}
               </span>
             </div>
             <div className="relative h-2 bg-[var(--color-rule)]">
@@ -91,7 +91,7 @@ export function ValueSweepChart({ active }: { active?: boolean }) {
         className="small mono mt-6"
         style={{ color: "var(--color-ink-muted)" }}
       >
-        cyan = l33t-server-epoll. dim = redis 6.0 native bench.
+        cyan = L33t KV (epoll). dim = Redis 6.0 native bench.
         <br />
         3-node, LAN cross-machine, sync per op.
       </div>
