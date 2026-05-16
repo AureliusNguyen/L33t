@@ -122,7 +122,7 @@ export function DualColumn({ sections, artifacts }: Props) {
   return (
     <div className="relative max-w-[1280px] mx-auto px-6 sm:px-12 lg:px-16">
       <div className="grid grid-cols-1 lg:grid-cols-[58fr_42fr] gap-12 lg:gap-20">
-        <div className="space-y-32 sm:space-y-40 lg:space-y-56">
+        <div className="space-y-24 sm:space-y-32 lg:space-y-40">
           {sections.map((s) => (
             <div
               key={s.id}
@@ -131,7 +131,7 @@ export function DualColumn({ sections, artifacts }: Props) {
                 // Scroll-driven terminal sections get extra vertical real
                 // estate on desktop so the typing has room to play out as
                 // the reader works through the prose.
-                SCROLL_HEAVY.has(s.id) ? "lg:min-h-[250vh]" : ""
+                SCROLL_HEAVY.has(s.id) ? "lg:min-h-[150vh]" : ""
               }
             >
               {s.node}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export type TerminalLine = {
   /** Prompt prefix, e.g., "root@l33t:~$ ". Empty for output lines. */
@@ -48,6 +48,44 @@ export function ReplayTerminal({
   const [autoActiveLine, setAutoActiveLine] = useState(0);
   const startedRef = useRef<string | number | undefined>(undefined);
 
+  // Scroll-driven mode: optional override progress driven by the "play"
+  // button. When non-null, the effective progress is the max of the scroll
+  // progress and this override. Once a play has completed (override = 1),
+  // the terminal stays full even if the user scrolls back up.
+  const [override, setOverride] = useState<number | null>(null);
+  const playRafRef = useRef<number | null>(null);
+
+  const effectiveProgress = isScrollDriven
+    ? Math.max(progress ?? 0, override ?? 0)
+    : 0;
+
+  const play = useCallback(() => {
+    if (!isScrollDriven) return;
+    if (playRafRef.current) cancelAnimationFrame(playRafRef.current);
+    const start = performance.now();
+    const from = effectiveProgress;
+    // Shorter animation if we're already mostly there.
+    const dur = Math.max(380, 1100 * (1 - from));
+    function tick(now: number) {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 2);
+      const value = from + (1 - from) * eased;
+      setOverride(value);
+      if (t < 1) {
+        playRafRef.current = requestAnimationFrame(tick);
+      } else {
+        playRafRef.current = null;
+      }
+    }
+    playRafRef.current = requestAnimationFrame(tick);
+  }, [effectiveProgress, isScrollDriven]);
+
+  useEffect(() => {
+    return () => {
+      if (playRafRef.current) cancelAnimationFrame(playRafRef.current);
+    };
+  }, []);
+
   // Auto-type effect (only runs when not scroll-driven)
   useEffect(() => {
     if (isScrollDriven) return;
@@ -91,7 +129,7 @@ export function ReplayTerminal({
         isCursorOn: true,
       };
     }
-    const charsToShow = Math.floor(totalChars * (progress ?? 0));
+    const charsToShow = Math.floor(totalChars * effectiveProgress);
     let remaining = charsToShow;
     const next: string[] = [];
     let activeIdx = 0;
@@ -118,12 +156,16 @@ export function ReplayTerminal({
     };
   }, [
     isScrollDriven,
-    progress,
+    effectiveProgress,
     totalChars,
     lines,
     autoRendered,
     autoActiveLine,
   ]);
+
+  // Show the play button only in scroll-driven mode AND when typing isn't
+  // already at 100%. Stays hidden once the terminal is fully revealed.
+  const showPlay = isScrollDriven && effectiveProgress < 0.999;
 
   return (
     <div
@@ -154,6 +196,23 @@ export function ReplayTerminal({
           transition: "opacity 320ms ease-out",
         }}
       />
+
+      {showPlay && (
+        <button
+          type="button"
+          onClick={play}
+          aria-label="play the typing animation to the end"
+          className="absolute top-3 right-3 mono-data px-2.5 py-1 border border-[var(--color-rule)] hover:border-[color:var(--color-cyan)]/40 transition-colors"
+          style={{
+            color: "var(--color-ink-muted)",
+            background: "rgba(12, 19, 34, 0.7)",
+            letterSpacing: "0.08em",
+            fontSize: 11,
+          }}
+        >
+          {"▸ play"}
+        </button>
+      )}
 
       <pre className="mono-body whitespace-pre-wrap leading-relaxed">
         {lines.map((line, i) => {

@@ -299,14 +299,18 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="max-w-[820px] mx-auto px-6 sm:px-12 lg:px-16 pb-32 sm:pb-48 text-center">
+        <section className="max-w-[940px] mx-auto px-6 sm:px-12 lg:px-16 pb-32 sm:pb-48 text-center">
           <p
             className="display-2"
-            style={{ color: "var(--color-ink-dim)" }}
+            style={{ color: "var(--color-ink)" }}
           >
-            Four ceilings. Three rewrites.
+            Three bytes of wire.
             <br />
-            The network was always the wall.
+            Eighty microseconds of LAN.
+            <br />
+            <span style={{ color: "var(--color-ink-dim)" }}>
+              The rest is decoration.
+            </span>
           </p>
         </section>
       </div>
