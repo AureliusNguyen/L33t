@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   loadCore,
   encodeSet,
@@ -9,6 +9,10 @@ import {
   toHexBytes,
   type CoreHandle,
 } from "@/lib/wasm/l33t-core";
+
+/** Demo build limits: matches the C code in wasm-src/l33t-core.c. */
+const MAX_KEY_BYTES = 64;
+const MAX_VAL_BYTES = 192;
 
 type RunRecord = {
   command: string;
@@ -30,7 +34,7 @@ const EXAMPLES = [
   "SET key_1 hello",
   "GET key_1",
   "GET missing",
-  "SET name aurelius",
+  "SET name Lebron",
 ];
 
 export function InteractiveSetup({ active }: { active?: boolean }) {
@@ -39,6 +43,11 @@ export function InteractiveSetup({ active }: { active?: boolean }) {
   const [record, setRecord] = useState<RunRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Live validation. Re-parses on every keystroke and surfaces the same
+  // error parseCommand would return on Run, so the user finds out before
+  // they click the button.
+  const validation = useMemo(() => validateInput(input), [input]);
 
   useEffect(() => {
     let mounted = true;
@@ -58,6 +67,11 @@ export function InteractiveSetup({ active }: { active?: boolean }) {
 
   function run() {
     if (!core) return;
+    if (!validation.ok) {
+      setError(validation.message);
+      setRecord(null);
+      return;
+    }
     const parsed = parseCommand(input);
     if (parsed.op === "error") {
       setError(parsed.message);
@@ -145,8 +159,14 @@ export function InteractiveSetup({ active }: { active?: boolean }) {
         type a command, hit Run, see the wire bytes
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-3">
-        <div className="flex items-center flex-1 border border-[var(--color-rule)] bg-[var(--color-midnight)] px-3 py-2 focus-within:border-[color:var(--color-cyan)]/40 transition-colors">
+      <div className="flex flex-col sm:flex-row gap-2 mb-2">
+        <div
+          className={`flex items-center flex-1 border bg-[var(--color-midnight)] px-3 py-2 transition-colors ${
+            validation.ok
+              ? "border-[var(--color-rule)] focus-within:border-[color:var(--color-cyan)]/40"
+              : "border-[color:var(--color-ink-dim)]/30"
+          }`}
+        >
           <span
             className="mono-body mr-2 shrink-0"
             style={{ color: "var(--color-ink-muted)" }}
@@ -165,26 +185,62 @@ export function InteractiveSetup({ active }: { active?: boolean }) {
             spellCheck={false}
             autoCorrect="off"
             autoCapitalize="off"
+            maxLength={300}
             className="mono-body bg-transparent outline-none flex-1 min-w-0"
             style={{ color: "var(--color-ink)" }}
             aria-label="l33t command (SET or GET)"
+            aria-invalid={!validation.ok}
+            aria-describedby="setup-helper"
           />
         </div>
         <button
           type="button"
           onClick={run}
-          disabled={!core}
+          disabled={!core || !validation.ok}
           className="mono-data px-5 py-2 border transition-colors shrink-0"
           style={{
-            background: core ? "var(--color-cyan)" : "transparent",
-            color: core ? "var(--color-midnight)" : "var(--color-ink-muted)",
-            borderColor: core ? "var(--color-cyan)" : "var(--color-rule)",
-            cursor: core ? "pointer" : "not-allowed",
+            background:
+              core && validation.ok ? "var(--color-cyan)" : "transparent",
+            color:
+              core && validation.ok
+                ? "var(--color-midnight)"
+                : "var(--color-ink-muted)",
+            borderColor:
+              core && validation.ok
+                ? "var(--color-cyan)"
+                : "var(--color-rule)",
+            cursor: core && validation.ok ? "pointer" : "not-allowed",
             letterSpacing: "0.06em",
           }}
+          title={
+            !validation.ok
+              ? validation.message
+              : !core
+                ? "loading WASM..."
+                : "run command"
+          }
         >
           {core ? "Run" : "..."}
         </button>
+      </div>
+
+      <div
+        id="setup-helper"
+        className="small mono mb-3"
+        style={{
+          color: validation.ok
+            ? "var(--color-ink-muted)"
+            : "var(--color-ink-dim)",
+          minHeight: "1.5em",
+        }}
+      >
+        {validation.ok
+          ? `key max ${MAX_KEY_BYTES} bytes, value max ${MAX_VAL_BYTES} bytes${
+              validation.wireBytes !== null
+                ? ` - this command: ${validation.wireBytes} bytes on wire`
+                : ""
+            }`
+          : `! ${validation.message}`}
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">
@@ -222,6 +278,51 @@ export function InteractiveSetup({ active }: { active?: boolean }) {
       )}
     </div>
   );
+}
+
+type Validation =
+  | { ok: true; wireBytes: number | null }
+  | { ok: false; message: string };
+
+function validateInput(raw: string): Validation {
+  const trimmed = raw.trim();
+  if (!trimmed) return { ok: false, message: "type SET <key> <value> or GET <key>" };
+  const parts = trimmed.split(/\s+/);
+  const verb = parts[0].toUpperCase();
+
+  if (verb !== "SET" && verb !== "GET") {
+    return { ok: false, message: `unknown command '${parts[0]}' - use SET or GET` };
+  }
+  if (verb === "SET" && parts.length < 3) {
+    return { ok: false, message: "SET needs a key and a value" };
+  }
+  if (verb === "GET" && parts.length !== 2) {
+    return { ok: false, message: "GET takes exactly one key" };
+  }
+
+  const key = parts[1];
+  const keyBytes = new TextEncoder().encode(key).length;
+  if (keyBytes > MAX_KEY_BYTES) {
+    return {
+      ok: false,
+      message: `key is ${keyBytes} bytes - max ${MAX_KEY_BYTES} bytes`,
+    };
+  }
+
+  if (verb === "GET") {
+    return { ok: true, wireBytes: 3 + keyBytes };
+  }
+
+  const value = parts.slice(2).join(" ");
+  const valBytes = new TextEncoder().encode(value).length;
+  if (valBytes > MAX_VAL_BYTES) {
+    return {
+      ok: false,
+      message: `value is ${valBytes} bytes - max ${MAX_VAL_BYTES} bytes`,
+    };
+  }
+
+  return { ok: true, wireBytes: 3 + keyBytes + 2 + valBytes };
 }
 
 function HexBreakdown({ record }: { record: RunRecord }) {

@@ -65,24 +65,33 @@ export function DualColumn({ sections, artifacts }: Props) {
     return () => obs.disconnect();
   }, [sections]);
 
-  // Scroll-driven progress for the active section
+  // Scroll-driven progress for ALL sections (not just the active one) so
+  // sections the user scrolls quickly past converge to progress=1 instead
+  // of getting stuck mid-typing.
   useEffect(() => {
     let frame = 0;
     function compute() {
-      const el = document.getElementById(active);
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
       const triggerOffset = vh * 0.2;
-      const scrolledPast = triggerOffset - rect.top;
-      const linear = Math.max(0, Math.min(1, scrolledPast / rect.height));
-      // Apply a power curve so typing lags behind scroll: the right-side
-      // terminal fills slowly while the reader is still in the opening
-      // paragraphs of the left-side prose, then accelerates as they reach
-      // the result line. Exponent 1.5 roughly doubles the perceived scroll
-      // distance to reach the same fill level vs linear.
-      const eased = Math.pow(linear, 1.5);
-      progressRef.current = { ...progressRef.current, [active]: eased };
+      const next: Record<SectionId, number> = { ...progressRef.current };
+      for (const s of sections) {
+        const el = document.getElementById(s.id);
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        const scrolledPast = triggerOffset - rect.top;
+        const linear = Math.max(0, Math.min(1, scrolledPast / rect.height));
+        // Finish typing inside the first FINISH_AT of the section then sit
+        // at progress=1 for the remainder so the result lingers while the
+        // reader finishes the prose and the next ceiling enters view.
+        // Inside the typing window, apply a power curve for soft start.
+        const FINISH_AT = 0.6;
+        const eased =
+          linear < FINISH_AT
+            ? Math.pow(linear / FINISH_AT, 1.8)
+            : 1;
+        next[s.id] = eased;
+      }
+      progressRef.current = next;
       setRerender((n) => n + 1);
     }
     function onScroll() {
@@ -97,7 +106,7 @@ export function DualColumn({ sections, artifacts }: Props) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [active]);
+  }, [sections]);
 
   return (
     <div className="relative max-w-[1280px] mx-auto px-6 sm:px-12 lg:px-16">
@@ -111,7 +120,7 @@ export function DualColumn({ sections, artifacts }: Props) {
                 // Scroll-driven terminal sections get extra vertical real
                 // estate on desktop so the typing has room to play out as
                 // the reader works through the prose.
-                SCROLL_HEAVY.has(s.id) ? "lg:min-h-[92vh]" : ""
+                SCROLL_HEAVY.has(s.id) ? "lg:min-h-[110vh]" : ""
               }
             >
               {s.node}

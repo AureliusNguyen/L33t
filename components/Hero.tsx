@@ -2,8 +2,8 @@
 
 import { motion } from "motion/react";
 
-const TITLE = "Four ceilings.";
-const DEK = "A KV store that ties Redis 6.0 on a lab LAN.";
+const TITLE = "L33t KV";
+const DEK = "A KV store that beats Redis 6.0";
 
 export function Hero() {
   return (
@@ -39,10 +39,10 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.4, delay: 1.15 }}
-        className="small mono mt-16 sm:mt-20 max-w-[48ch]"
+        className="small mono mt-16 sm:mt-20 max-w-[96ch]"
         style={{ color: "var(--color-ink-muted)" }}
       >
-        Four ceilings, three rewrites, and the discovery that the network was always the wall.
+        Four iterations and the true bottleneck discovery.
       </motion.p>
     </section>
   );
@@ -62,7 +62,7 @@ function HeroTerminal() {
         {"\n"}
         <span>avg latency  0.080 ms</span>
         {"\n"}
-        <span>parity with  redis 6.0 (35,670 ops/sec)</span>
+        <span>beating redis 6.0 (35,670 ops/sec)</span>
         {"\n\n"}
         <span style={{ color: "var(--color-ink-muted)" }}>shado@l33t:~$ </span>
         <span className="cursor">_</span>
