@@ -14,7 +14,11 @@ const LINK_GBIT = 1; // 1 Gbit assumed link speed
 export function WasmRttSlider({ active }: { active?: boolean }) {
   const [core, setCore] = useState<CoreHandle | null>(null);
   const [cpuUs, setCpuUs] = useState<number | null>(null);
+  // Floor at 1 ms - at 0 the formula divides by tiny numbers and gives
+  // implausible throughput (15M ops/sec) that distracts from the point.
   const [rttMs, setRttMs] = useState(80);
+  const RTT_MIN = 1;
+  const RTT_MAX = 200;
   const [pulse, setPulse] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const pulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -103,13 +107,13 @@ export function WasmRttSlider({ active }: { active?: boolean }) {
           className="flex justify-between small mono"
           style={{ color: "var(--color-ink-muted)" }}
         >
-          <span>RTT 0 ms</span>
-          <span>200 ms</span>
+          <span>RTT {RTT_MIN} ms</span>
+          <span>{RTT_MAX} ms</span>
         </div>
         <input
           type="range"
-          min={0}
-          max={200}
+          min={RTT_MIN}
+          max={RTT_MAX}
           step={1}
           value={rttMs}
           onChange={(e) => onRttChange(Number(e.target.value))}
@@ -161,12 +165,12 @@ export function WasmRttSlider({ active }: { active?: boolean }) {
         <tbody>
           <Row
             label="cpu work"
-            value={cpuUs !== null ? `${cpuUs.toFixed(2)} microsec` : "(loading)"}
+            value={cpuUs !== null ? `${(cpuUs / 1000).toFixed(5)} ms` : "(loading)"}
             note="measured once in WASM (constant)"
           />
           <Row
             label="bandwidth"
-            value={`${bandwidthUs.toFixed(2)} microsec`}
+            value={`${(bandwidthUs / 1000).toFixed(5)} ms`}
             note={`${VALUE_SIZE_BYTES} B value at ${LINK_GBIT} Gbit (constant)`}
           />
           <Row

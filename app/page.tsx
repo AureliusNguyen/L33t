@@ -16,6 +16,7 @@ import { WasmRttSlider } from "@/components/artifacts/WasmRttSlider";
 import { InteractiveSetup } from "@/components/artifacts/InteractiveSetup";
 import { InteractiveTradeoffs } from "@/components/InteractiveTradeoffs";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
+import { Lesson } from "@/components/Lesson";
 
 const PYTHON_LINES: TerminalLine[] = [
   { prompt: "root@l33t:~$ ", text: "./l33t-server.py --port 8080 &" },
@@ -262,58 +263,44 @@ export default function Home() {
             <h3 className="h2 mt-16 mb-6">What this taught me.</h3>
           </RevealOnScroll>
 
-          <div className="space-y-6">
+          <div className="space-y-2">
             <RevealOnScroll>
-              <p className="body">
-                <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
-                  The wire protocol matters less than you would think.
-                </em>{" "}
+              <Lesson headline="The wire protocol matters less than you would think.">
                 RESP costs five to seven times the framing per op that our
                 three-byte format does. At the LAN-RTT ceiling that
                 difference disappears. The win you can measure isn&apos;t
                 always the win that matters.
-              </p>
+              </Lesson>
             </RevealOnScroll>
             <RevealOnScroll delay={0.05}>
-              <p className="body">
-                <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
-                  CPU is rarely the bottleneck once a real network is in
-                  the loop.
-                </em>{" "}
+              <Lesson headline="CPU is rarely the bottleneck once a real network is in the loop.">
                 Three rewrites moved the server from thirteen thousand ops
                 per second to thirty-six thousand. At five microsec of CPU
                 per op against eighty microsec of LAN RTT, anything you do
                 to the CPU side is shaving margins on a number that&apos;s
                 already small.
-              </p>
+              </Lesson>
             </RevealOnScroll>
             <RevealOnScroll delay={0.1}>
-              <p className="body">
-                <em className="lede" style={{ fontSize: "1em", color: "var(--color-ink)" }}>
-                  Knowing when to stop optimizing is harder than starting.
-                </em>{" "}
+              <Lesson headline="Knowing when to stop optimizing is harder than starting.">
                 io_uring gave nothing because there were no in-flight ops
                 to amortize. The correct response to a fancy tool that
                 doesn&apos;t help is to put it down, not to keep tuning
                 parameters until something moves.
-              </p>
+              </Lesson>
             </RevealOnScroll>
             <RevealOnScroll delay={0.15}>
-              <p className="body" style={{ color: "var(--color-ink-dim)" }}>
-                <em className="lede" style={{ fontSize: "1em", color: "inherit" }}>
-                  Fifteen years of operational hardening beats one weekend
-                  of micro-optimization.
-                </em>{" "}
+              <Lesson headline="Fifteen years of operational hardening beats one weekend of micro-optimization.">
                 Features you don&apos;t have are only valuable if you
                 don&apos;t need them. The day L33t KV needs to survive a
                 process restart is the day it stops being a benchmark and
                 starts being a database, and that is a different project.
-              </p>
+              </Lesson>
             </RevealOnScroll>
           </div>
         </section>
 
-        <section className="max-w-[1040px] mx-auto px-6 sm:px-12 lg:px-16 pb-32 sm:pb-48 text-center">
+        <section className="max-w-[1040px] mx-auto px-6 sm:px-12 lg:px-16 pb-20 sm:pb-28 text-center">
           <p
             className="display-2"
             style={{ color: "var(--color-ink)", textWrap: "balance" }}
@@ -322,10 +309,40 @@ export default function Home() {
             <br />
             A KV store that beats Redis 6.0
             <span style={{ color: "var(--color-ink-dim)" }}>
-            by sacrificing everything Redis spent fifteen years building.
+             by sacrificing everything Redis spent fifteen years building.
             </span>
           </p>
         </section>
+
+        <footer className="max-w-[1040px] mx-auto px-6 sm:px-12 lg:px-16 pb-20 sm:pb-32 text-center">
+          <div
+            className="rule mx-auto mb-10"
+            style={{ maxWidth: "120px" }}
+          />
+          <p
+            className="small mono"
+            style={{ color: "var(--color-ink-muted)" }}
+          >
+            made by{" "}
+            <a
+              href="https://github.com/AureliusNguyen"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="border-b border-transparent hover:border-[color:var(--color-cyan)]/60 hover:text-[color:var(--color-cyan)] transition-colors"
+            >
+              Aurelius Nguyen
+            </a>{" "}
+            and{" "}
+            <a
+              href="https://github.com/jhu04"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="border-b border-transparent hover:border-[color:var(--color-cyan)]/60 hover:text-[color:var(--color-cyan)] transition-colors"
+            >
+              Jeffrey Hu
+            </a>
+          </p>
+        </footer>
       </div>
     </main>
   );

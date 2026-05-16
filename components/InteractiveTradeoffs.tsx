@@ -150,34 +150,47 @@ export function InteractiveTradeoffs() {
     [selected]
   );
 
+  // The first checked sacrificed feature, used in the single-feature
+  // verdict so the message names the actual feature instead of always
+  // saying "persistence".
+  const firstMissingChecked = useMemo(
+    () => FEATURES.find((f) => !f.supported && selected.has(f.id)) ?? null,
+    [selected]
+  );
+
   const verdict = useMemo(() => {
     if (missingNeeded === 0 && selectedSupported === 0) {
       return {
-        label: "tell me what you need",
+        label: "Tell me what you need",
         color: "var(--color-ink)",
-        sub: "check the features your workload requires. the verdict updates live.",
+        sub: "Check the features your workload requires. The verdict updates live.",
       };
     }
     if (missingNeeded === 0) {
       return {
-        label: "L33t works for you",
+        label: "L33t KV works for you",
         color: "var(--color-cyan)",
-        sub: `${selectedSupported} of ${totalSupported} L33t features needed, 0 sacrificed features needed. you can ship this.`,
+        sub: `${selectedSupported} of ${totalSupported} L33t KV features needed, 0 sacrificed features needed. You can ship this.`,
       };
     }
-    if (missingNeeded === 1) {
+    if (missingNeeded === 1 && firstMissingChecked) {
       return {
-        label: "you need a real KV store",
+        label: "You need a real KV store",
         color: "var(--color-ink)",
-        sub: `1 sacrificed feature is enough to disqualify L33t. there is no 'just persistence' mode.`,
+        sub: `L33t KV doesn't have ${firstMissingChecked.title.toLowerCase()}. Adding it would mean rebuilding around it, which is what Redis already did.`,
       };
     }
     return {
-      label: "you need Redis",
+      label: "You need Redis",
       color: "var(--color-ink)",
-      sub: `${missingNeeded} sacrificed features needed. the gap between L33t and Redis is the gap between a benchmark and a production service.`,
+      sub: `${missingNeeded} sacrificed features needed. The gap between L33t KV and Redis is the gap between a benchmark and a production service.`,
     };
-  }, [missingNeeded, selectedSupported, totalSupported]);
+  }, [
+    missingNeeded,
+    selectedSupported,
+    totalSupported,
+    firstMissingChecked,
+  ]);
 
   return (
     <div ref={ref} className="mt-4">
@@ -307,24 +320,34 @@ export function InteractiveTradeoffs() {
           transition: "border-color 240ms ease-out",
         }}
       >
-        <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <div
-            className="small mono"
-            style={{ color: "var(--color-ink-muted)" }}
-          >
-            features needed / sacrificed needed
+        <div className="grid grid-cols-2 gap-3 sm:gap-6">
+          <div>
+            <div
+              className="small mono"
+              style={{ color: "var(--color-ink-muted)" }}
+            >
+              checked, L33t KV has it
+            </div>
+            <div
+              className="mono-data tabular-nums mt-1"
+              style={{ color: "var(--color-cyan)" }}
+            >
+              <span>{selectedSupported}</span>
+              <span style={{ color: "var(--color-ink-muted)" }}>
+                {" of "}
+                {totalSupported}
+              </span>
+            </div>
           </div>
-          <div
-            className="mono-data tabular-nums"
-            style={{ color: "var(--color-cyan)" }}
-          >
-            <span>{selectedSupported}</span>
-            <span style={{ color: "var(--color-ink-muted)" }}>
-              {" / "}
-              {totalSupported}
-            </span>
-            <span style={{ color: "var(--color-ink-muted)" }}>{" + "}</span>
-            <span
+          <div>
+            <div
+              className="small mono"
+              style={{ color: "var(--color-ink-muted)" }}
+            >
+              checked, L33t KV lacks it
+            </div>
+            <div
+              className="mono-data tabular-nums mt-1"
               style={{
                 color:
                   missingNeeded > 0
@@ -332,12 +355,12 @@ export function InteractiveTradeoffs() {
                     : "var(--color-ink-muted)",
               }}
             >
-              {missingNeeded}
-            </span>
-            <span style={{ color: "var(--color-ink-muted)" }}>
-              {" / "}
-              {totalMissing}
-            </span>
+              <span>{missingNeeded}</span>
+              <span style={{ color: "var(--color-ink-muted)" }}>
+                {" of "}
+                {totalMissing}
+              </span>
+            </div>
           </div>
         </div>
         <div

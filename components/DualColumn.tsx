@@ -59,7 +59,12 @@ export function DualColumn({ sections, artifacts }: Props) {
         );
         setActive(closest.target.id as SectionId);
       },
-      { rootMargin: "-25% 0px -55% 0px", threshold: 0 }
+      // Tighter band high on the viewport so a section in the
+      // upper-middle wins active, and the next section has to
+      // climb further before it can displace it. Combined with the
+      // taller scroll-heavy sections this gives the completed
+      // terminal a long linger before the crossfade.
+      { rootMargin: "-30% 0px -60% 0px", threshold: 0 }
     );
     elements.forEach((e) => obs.observe(e));
     return () => obs.disconnect();
@@ -133,7 +138,7 @@ export function DualColumn({ sections, artifacts }: Props) {
                   // Scroll-driven terminal sections get extra vertical
                   // real estate on desktop so the typing has room to
                   // play out as the reader works through the prose.
-                  heavy ? "lg:min-h-[150vh]" : ""
+                  heavy ? "lg:min-h-[200vh]" : ""
                 }
               >
                 {/* In scroll-heavy sections we sticky-pin the prose so
