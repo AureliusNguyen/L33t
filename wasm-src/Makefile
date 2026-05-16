@@ -13,7 +13,7 @@ $(OUT_DIR)/l33t-core.js: l33t-core.c
 	  -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","HEAPU8"]' \
 	  -s MODULARIZE=1 -s EXPORT_ES6=1 \
 	  -s ENVIRONMENT=web -s ALLOW_MEMORY_GROWTH=1 \
-	  -s SINGLE_FILE=0 \
+	  -s SINGLE_FILE=1 \
 	  -o $(OUT_DIR)/l33t-core.js
 
 clean:

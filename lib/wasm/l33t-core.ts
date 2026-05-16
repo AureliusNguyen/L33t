@@ -1,7 +1,11 @@
 // TypeScript wrapper around the emscripten-produced l33t-core module.
-// Loads on demand. Exposes a typed surface for the slider component.
+//
+// The wasm is inlined into l33t-core.js as base64 (SINGLE_FILE=1), so a
+// single dynamic import gives us the whole module with no separate .wasm
+// fetch. Turbopack code-splits the import into its own chunk, lazy-loaded
+// when the slider component mounts.
 
-type WasmModule = {
+type EmscriptenModule = {
   HEAPU8: Uint8Array;
   _malloc: (n: number) => number;
   _free: (ptr: number) => void;
@@ -12,14 +16,15 @@ type WasmModule = {
   ) => (...args: T) => R;
 };
 
-let modulePromise: Promise<WasmModule> | null = null;
+type EmscriptenFactory = (cfg?: Record<string, unknown>) => Promise<EmscriptenModule>;
 
-async function loadModule(): Promise<WasmModule> {
+let modulePromise: Promise<EmscriptenModule> | null = null;
+
+async function loadModule(): Promise<EmscriptenModule> {
   if (modulePromise) return modulePromise;
   modulePromise = (async () => {
-    // dynamic import of the emscripten ESM module
     const factory = (await import("./l33t-core.js")) as unknown as {
-      default: () => Promise<WasmModule>;
+      default: EmscriptenFactory;
     };
     return factory.default();
   })();
