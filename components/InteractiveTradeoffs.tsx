@@ -320,34 +320,34 @@ export function InteractiveTradeoffs() {
           transition: "border-color 240ms ease-out",
         }}
       >
-        <div className="grid grid-cols-2 gap-3 sm:gap-6">
-          <div>
-            <div
+        <div className="space-y-2">
+          <div className="flex items-baseline justify-between gap-3">
+            <span
               className="small mono"
               style={{ color: "var(--color-ink-muted)" }}
             >
-              checked, L33t KV has it
-            </div>
-            <div
-              className="mono-data tabular-nums mt-1"
+              Checked, L33t KV has it
+            </span>
+            <span
+              className="mono-data tabular-nums"
               style={{ color: "var(--color-cyan)" }}
             >
-              <span>{selectedSupported}</span>
+              {selectedSupported}
               <span style={{ color: "var(--color-ink-muted)" }}>
                 {" of "}
                 {totalSupported}
               </span>
-            </div>
+            </span>
           </div>
-          <div>
-            <div
+          <div className="flex items-baseline justify-between gap-3">
+            <span
               className="small mono"
               style={{ color: "var(--color-ink-muted)" }}
             >
-              checked, L33t KV lacks it
-            </div>
-            <div
-              className="mono-data tabular-nums mt-1"
+              Checked, L33t KV lacks it
+            </span>
+            <span
+              className="mono-data tabular-nums"
               style={{
                 color:
                   missingNeeded > 0
@@ -355,12 +355,12 @@ export function InteractiveTradeoffs() {
                     : "var(--color-ink-muted)",
               }}
             >
-              <span>{missingNeeded}</span>
+              {missingNeeded}
               <span style={{ color: "var(--color-ink-muted)" }}>
                 {" of "}
                 {totalMissing}
               </span>
-            </div>
+            </span>
           </div>
         </div>
         <div
