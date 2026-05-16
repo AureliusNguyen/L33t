@@ -326,7 +326,7 @@ export function InteractiveTradeoffs() {
               className="small mono"
               style={{ color: "var(--color-ink-muted)" }}
             >
-              Checked, L33t KV has it
+              L33t KV strengths you need
             </span>
             <span
               className="mono-data tabular-nums"
@@ -344,7 +344,7 @@ export function InteractiveTradeoffs() {
               className="small mono"
               style={{ color: "var(--color-ink-muted)" }}
             >
-              Checked, L33t KV lacks it
+              L33t KV gaps you need
             </span>
             <span
               className="mono-data tabular-nums"
