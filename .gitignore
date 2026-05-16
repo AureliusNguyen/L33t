@@ -1,0 +1,36 @@
+# next
+.next/
+out/
+build/
+
+# node
+node_modules/
+.pnp/
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env
+.env
+.env.local
+.env.*.local
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# emscripten build artifacts (intermediate)
+wasm-src/*.o
+wasm-src/.deps
