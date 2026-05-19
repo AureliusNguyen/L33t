@@ -40,16 +40,14 @@ export function Glossary({ term, explanation, code }: Props) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={`show definition of ${term}`}
-        className="px-1.5 py-0 border cursor-pointer transition-colors align-middle hover:brightness-110"
+        className={`cursor-pointer transition-colors align-baseline hover:brightness-110 ${
+          open ? "" : "glossary-flow"
+        }`}
         style={{
-          borderColor: open
-            ? "var(--color-cyan)"
-            : "color-mix(in oklab, var(--color-cyan) 55%, transparent)",
-          background: open
-            ? "color-mix(in oklab, var(--color-cyan) 14%, transparent)"
-            : "color-mix(in oklab, var(--color-cyan) 7%, transparent)",
-          color: open ? "var(--color-cyan)" : "inherit",
-          borderRadius: 2,
+          color: "var(--color-cyan)",
+          background: "transparent",
+          padding: open ? "0 0 2px 0" : 0,
+          borderBottom: open ? "1px solid var(--color-cyan)" : "none",
         }}
       >
         {term}
