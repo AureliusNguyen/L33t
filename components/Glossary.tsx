@@ -40,7 +40,7 @@ export function Glossary({ term, explanation, code }: Props) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={`show definition of ${term}`}
-        className="px-1.5 py-[1px] border cursor-pointer transition-colors align-baseline hover:brightness-110"
+        className="px-1.5 py-0 border cursor-pointer transition-colors align-middle hover:brightness-110"
         style={{
           borderColor: open
             ? "var(--color-cyan)"
