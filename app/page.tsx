@@ -17,6 +17,16 @@ import { InteractiveSetup } from "@/components/artifacts/InteractiveSetup";
 import { InteractiveTradeoffs } from "@/components/InteractiveTradeoffs";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Lesson } from "@/components/Lesson";
+import { Glossary } from "@/components/Glossary";
+
+const FNV1A_C = `static inline uint64_t fnv1a(const char* data, size_t len) {
+    uint64_t h = 14695981039346656037ULL;
+    for (size_t i = 0; i < len; i++) {
+        h ^= (uint8_t)data[i];
+        h *= 1099511628211ULL;
+    }
+    return h;
+}`;
 
 const PYTHON_LINES: TerminalLine[] = [
   { prompt: "root@l33t:~$ ", text: "./l33t-server.py --port 8080 &" },
@@ -131,12 +141,18 @@ export default function Home() {
         >
           <p className="body">
             The server is about four hundred lines of C. The hash table
-            uses FNV-1a with open addressing and linear probing, with
-            tombstones to mark deleted slots. Each connection has its
-            own read and write buffers. The epoll loop runs in
-            edge-triggered mode and drains every socket until the kernel
-            returns EAGAIN. The listening socket has TCP_NODELAY set so
-            the kernel does not hold packets waiting for more payload.
+            uses{" "}
+            <Glossary
+              term="FNV-1a"
+              code={FNV1A_C}
+              explanation="A fast non-cryptographic hash, around 1ns per byte on modern CPUs, no library dependency. Great fit for a server where keys are short and you control both ends of the wire."
+            />{" "}
+            with open addressing and linear probing, with tombstones to
+            mark deleted slots. Each connection has its own read and
+            write buffers. The epoll loop runs in edge-triggered mode
+            and drains every socket until the kernel returns EAGAIN. The
+            listening socket has TCP_NODELAY set so the kernel does not
+            hold packets waiting for more payload.
           </p>
           <p className="body">
             Result: <CountUp value={36234} suffix="ops/sec" />.
