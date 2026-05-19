@@ -64,7 +64,7 @@ export default function Home() {
           <p className="body">
             Most KV stores reach for Redis&apos;s RESP, a human-readable text
             protocol that costs seventeen to twenty-three bytes of framing
-            per op. L33t spends three. One byte for the opcode, two bytes
+            per op. L33T spends three. One byte for the opcode, two bytes
             for a big-endian length, then the payload. The receiver is a
             machine. Humans don&apos;t need to read it.
           </p>
@@ -210,13 +210,13 @@ export default function Home() {
             comparison. Value sizes range from 8 B to 1 KB.
           </p>
           <p className="body">
-            L33t KV wins at every size in the sweep. At 8 B the lead is 1.6
+            L33T KV wins at every size in the sweep. At 8 B the lead is 1.6
             percent. At 1 KB it shrinks to 0.7 percent. Run-to-run variance
             is on the order of half a percent, so the smaller leads are
             effectively ties.
           </p>
           <p className="body" style={{ color: "var(--color-ink-dim)" }}>
-            Per-node on loopback, Redis is roughly twice as fast as L33t KV.
+            Per-node on loopback, Redis is roughly twice as fast as L33T KV.
             That gap is what fifteen years of allocator and string work
             buys. On the LAN, the network absorbs it.
           </p>
@@ -265,7 +265,7 @@ export default function Home() {
           </h2>
           <p className="body mb-6 max-w-[760px]">
             36,234 ops/sec to Redis 6.0&apos;s 35,670. A 1.6 percent edge
-            that vanishes the moment you ask L33t KV to do anything Redis
+            that vanishes the moment you ask L33T KV to do anything Redis
             was actually built to do. Here is what got cut to claim those
             numbers.
           </p>
@@ -307,7 +307,7 @@ export default function Home() {
             <RevealOnScroll delay={0.15}>
               <Lesson headline="Fifteen years of operational hardening beats one weekend of micro-optimization.">
                 Features you don&apos;t have are only valuable if you
-                don&apos;t need them. The day L33t KV needs to survive a
+                don&apos;t need them. The day L33T KV needs to survive a
                 process restart is the day it stops being a benchmark and
                 starts being a database, and that is a different project.
               </Lesson>
@@ -350,7 +350,7 @@ export default function Home() {
             className="display-2"
             style={{ color: "var(--color-ink)", textWrap: "balance" }}
           >
-            L33t KV.
+            L33T KV.
             <br />
             A KV store that beats Redis 6.0
             {" "}

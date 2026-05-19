@@ -188,7 +188,7 @@ export function InteractiveSetup({ active }: { active?: boolean }) {
             maxLength={300}
             className="mono-body bg-transparent outline-none flex-1 min-w-0"
             style={{ color: "var(--color-ink)" }}
-            aria-label="L33t command (SET or GET)"
+            aria-label="L33T command (SET or GET)"
             aria-invalid={!validation.ok}
             aria-describedby="setup-helper"
           />
@@ -274,7 +274,7 @@ export function InteractiveSetup({ active }: { active?: boolean }) {
           className="mono-body"
           style={{ color: "var(--color-ink-muted)" }}
         >
-          click Run to encode the command into the L33t wire format.
+          click Run to encode the command into the L33T wire format.
         </div>
       )}
     </div>

@@ -178,12 +178,19 @@ body {
   animation-delay: -4.5s;
 }
 
-/* Glossary term: flowing dashed underline (marching-ants).
-   Signals "click for more" with continuous motion instead of a static
-   indicator. The dashed gradient is sized to one tile (6px) and the
-   animation translates by exactly one tile so the loop is seamless. */
+/* Glossary term underline: closed = marching-ants dashed flow,
+   open = solid cyan line at the exact same vertical position so
+   toggling between the two states does not shift the surrounding
+   text up or down. The line lives inside padding (not as a border)
+   so the button's box height stays constant. */
 @keyframes flow-underline {
   to { background-position: 6px 100%; }
+}
+.glossary-flow,
+.glossary-flow-open {
+  background-position: 0 100%;
+  background-repeat: repeat-x;
+  padding-bottom: 2px;
 }
 .glossary-flow {
   background-image: linear-gradient(
@@ -192,10 +199,15 @@ body {
     transparent 50%
   );
   background-size: 6px 1px;
-  background-position: 0 100%;
-  background-repeat: repeat-x;
-  padding-bottom: 2px;
   animation: flow-underline 0.8s linear infinite;
+}
+.glossary-flow-open {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-cyan),
+    var(--color-cyan)
+  );
+  background-size: 100% 1px;
 }
 
 @media (prefers-reduced-motion: reduce) {

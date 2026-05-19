@@ -41,13 +41,14 @@ export function Glossary({ term, explanation, code }: Props) {
         aria-expanded={open}
         aria-label={`show definition of ${term}`}
         className={`cursor-pointer transition-colors align-baseline hover:brightness-110 ${
-          open ? "" : "glossary-flow"
+          open ? "glossary-flow-open" : "glossary-flow"
         }`}
         style={{
           color: "var(--color-cyan)",
-          background: "transparent",
-          padding: open ? "0 0 2px 0" : 0,
-          borderBottom: open ? "1px solid var(--color-cyan)" : "none",
+          backgroundColor: "transparent",
+          paddingTop: 0,
+          paddingLeft: 0,
+          paddingRight: 0,
         }}
       >
         {term}

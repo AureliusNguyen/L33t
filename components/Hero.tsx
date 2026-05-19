@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 
-const TITLE = "L33t KV";
+const TITLE = "L33T KV";
 const DEK = "A KV store that beats Redis 6.0";
 
 export function Hero() {

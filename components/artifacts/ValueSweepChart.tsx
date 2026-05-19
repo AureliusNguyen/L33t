@@ -62,7 +62,7 @@ export function ValueSweepChart({ active }: { active?: boolean }) {
             className="inline-block w-4 h-2"
             style={{ background: "var(--color-cyan)" }}
           />
-          L33t KV (epoll)
+          L33T KV (epoll)
         </span>
         <span className="flex items-center gap-2">
           <span
@@ -82,7 +82,7 @@ export function ValueSweepChart({ active }: { active?: boolean }) {
                 className="mono-data"
                 style={{ color: "var(--color-ink-muted)" }}
               >
-                L33t KV {row.l33t.toLocaleString()} / Redis {row.redis.toLocaleString()}
+                L33T KV {row.l33t.toLocaleString()} / Redis {row.redis.toLocaleString()}
               </span>
             </div>
             <div className="relative h-2 bg-[var(--color-rule)]">

@@ -1,4 +1,4 @@
-# L33t KV
+# L33T KV
 
 **A custom binary-protocol KV store, written from scratch in ~400 lines of C,
 that ties Redis 6.0 on a lab LAN at 36,234 ops/sec.**
@@ -33,7 +33,7 @@ benchmark:
   no batching to amortize. Knowing when to stop tuning is harder than
   starting.
 - **Per-node, Redis is still ~2x faster on loopback.** The LAN absorbs
-  that gap. L33t won the visible race because the network refereed the
+  that gap. L33T won the visible race because the network refereed the
   whole thing.
 
 ## The journey
@@ -49,9 +49,9 @@ Three rewrites to discover the wall was off-chip.
 
 ## What I sacrificed for those numbers
 
-L33t does one thing. Redis does fifteen years of operational hardening.
+L33T does one thing. Redis does fifteen years of operational hardening.
 The site has an interactive checklist that lets you toggle features you'd
-need in production and see whether L33t works or whether you should reach
+need in production and see whether L33T works or whether you should reach
 for Redis - but the short list of what got cut:
 
 - No persistence (RAM only, kill the process and lose everything)
@@ -75,7 +75,7 @@ The 1.6 percent win is real. It's also the entire surface area.
   gains were unrecognizable next to the 80 microsec RTT.
 - **Knowing when to stop optimizing is a skill.** I put down io_uring
   after one benchmark instead of tuning ring sizes for two days.
-- **Operational hardening beats micro-optimization.** The day L33t KV
+- **Operational hardening beats micro-optimization.** The day L33T KV
   needs to survive a process restart, it stops being a benchmark and
   starts being a database. That's a different project.
 
@@ -92,7 +92,7 @@ single-page longform piece. It includes:
 - An **RTT slider** that takes real WASM-measured CPU cost and lets you
   dial in the network latency. Watch what dominates as you slide from
   loopback to WAN.
-- A **value-size sweep chart** comparing L33t KV and Redis at 8B / 100B
+- A **value-size sweep chart** comparing L33T KV and Redis at 8B / 100B
   / 1KB / 4KB.
 - An **interactive trade-off quiz** for the "could I actually use this"
   conversation.
@@ -127,7 +127,7 @@ Production alias is `l33t-kv.vercel.app`.
 
 ## A note on the benchmark
 
-Three Redis instances vs three L33t KV instances, same lab host, same
+Three Redis instances vs three L33T KV instances, same lab host, same
 `redis-benchmark` client to remove Python overhead from both sides,
 persistence off, 100k ops per shard. The values 36,234 vs 35,670 are
 medians of three runs; run-to-run variance is larger than the gap.
