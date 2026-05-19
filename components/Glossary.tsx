@@ -40,34 +40,19 @@ export function Glossary({ term, explanation, code }: Props) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={`show definition of ${term}`}
-        className="inline-flex items-center gap-1 px-1.5 py-[1px] border cursor-pointer transition-colors align-baseline"
+        className="px-1.5 py-[1px] border cursor-pointer transition-colors align-baseline hover:brightness-110"
         style={{
           borderColor: open
             ? "var(--color-cyan)"
             : "color-mix(in oklab, var(--color-cyan) 55%, transparent)",
           background: open
-            ? "color-mix(in oklab, var(--color-cyan) 12%, transparent)"
-            : "color-mix(in oklab, var(--color-cyan) 6%, transparent)",
+            ? "color-mix(in oklab, var(--color-cyan) 14%, transparent)"
+            : "color-mix(in oklab, var(--color-cyan) 7%, transparent)",
           color: open ? "var(--color-cyan)" : "inherit",
           borderRadius: 2,
         }}
       >
-        <span>{term}</span>
-        <span
-          aria-hidden
-          className="mono-data"
-          style={{
-            fontSize: "0.7em",
-            color: "var(--color-cyan)",
-            opacity: 0.85,
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 180ms ease-out",
-            display: "inline-block",
-            lineHeight: 1,
-          }}
-        >
-          v
-        </span>
+        {term}
       </button>
       {open && (
         <span
@@ -81,6 +66,30 @@ export function Glossary({ term, explanation, code }: Props) {
               "0 0 0 1px rgba(95,217,245,0.18), 0 24px 48px -16px rgba(0,0,0,0.6)",
           }}
         >
+          {/* tooltip pointer arrow connecting popover up to the chip.
+              SVG so the triangle's vertical position is pixel-exact and
+              not subject to font baseline drift. fill matches popover bg,
+              stroke matches popover border; the bottom edge is left open
+              so it visually merges into the popover top. */}
+          <svg
+            aria-hidden
+            width="14"
+            height="7"
+            viewBox="0 0 14 7"
+            style={{
+              position: "absolute",
+              top: -7,
+              left: 14,
+              overflow: "visible",
+            }}
+          >
+            <path
+              d="M0 7 L7 0 L14 7"
+              fill="var(--color-midnight-2)"
+              stroke="color-mix(in oklab, var(--color-cyan) 30%, transparent)"
+              strokeWidth="1"
+            />
+          </svg>
           <span
             className="block small mono mb-3"
             style={{
