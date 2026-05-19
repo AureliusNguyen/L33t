@@ -2,6 +2,22 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+// Single-column on mobile (< lg). We render artifacts inline below their
+// prose section there because the sticky right-stage layout collapses.
+// matchMedia chosen over CSS-only `lg:hidden` to avoid double-mounting
+// every artifact (WASM, RAF loops, IntersectionObservers) on desktop.
+function useIsMobile(breakpoint = 1024) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 export type SectionId =
   | "setup"
   | "ceiling-1-python"
@@ -39,6 +55,7 @@ export function DualColumn({ sections, artifacts }: Props) {
     sections.reduce((acc, s) => ({ ...acc, [s.id]: 0 }), {} as Record<SectionId, number>)
   );
   const [, setRerender] = useState(0);
+  const isMobile = useIsMobile();
 
   // Active-section detection
   useEffect(() => {
@@ -153,19 +170,26 @@ export function DualColumn({ sections, artifacts }: Props) {
                 >
                   {s.node}
                 </div>
+                {isMobile && (
+                  <div className="mt-8 h-[520px]">
+                    {artifacts[s.id]({ progress: 1, active: true })}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
-        <aside className="hidden lg:block">
-          <div className="sticky top-20 h-[min(78vh,620px)]">
-            <ArtifactStage
-              active={active}
-              artifacts={artifacts}
-              progresses={progressRef.current}
-            />
-          </div>
-        </aside>
+        {!isMobile && (
+          <aside className="hidden lg:block">
+            <div className="sticky top-20 h-[min(78vh,620px)]">
+              <ArtifactStage
+                active={active}
+                artifacts={artifacts}
+                progresses={progressRef.current}
+              />
+            </div>
+          </aside>
+        )}
       </div>
     </div>
   );
